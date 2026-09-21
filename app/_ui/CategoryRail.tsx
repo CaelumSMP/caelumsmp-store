@@ -14,9 +14,6 @@ export default function CategoryRail() {
 
   return (
     <div className="cl-rail cl-a1">
-      <button type="button" aria-pressed={selected === "all"} onClick={() => setSelected("all")}>
-        Everything
-      </button>
       {categories.map((c) => {
         const slug = categorySlug(c);
         return (

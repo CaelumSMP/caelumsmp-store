@@ -158,6 +158,11 @@ export function skinUrl(username: string, size = 200) {
   return `https://mc-heads.net/body/${encodeURIComponent(username || "Steve")}/${size}`;
 }
 
+/** Just the head. A body render squashed into a 22px chip is unreadable. */
+export function avatarUrl(username: string, size = 32) {
+  return `https://mc-heads.net/avatar/${encodeURIComponent(username || "Steve")}/${size}`;
+}
+
 export async function getBasket(ident: string): Promise<Basket> {
   return req<Basket>(`${ACCOUNT()}/baskets/${ident}`);
 }

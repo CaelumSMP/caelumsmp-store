@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { skinUrl } from "@/app/_lib/tebex";
+import { avatarUrl } from "@/app/_lib/tebex";
 import { lookupPlayer, type Lookup } from "@/app/_lib/mojang";
 import { useBasket } from "@/app/_ui/BasketProvider";
 
@@ -15,7 +15,7 @@ import { useBasket } from "@/app/_ui/BasketProvider";
 // The premium lookup is advisory. An offline server accepts names that aren't
 // premium, so a miss is a typo warning, never a block.
 export default function Identity() {
-  const { username, setUsername, clearUsername } = useBasket();
+  const { username, setUsername } = useBasket();
   const [draft, setDraft] = useState("");
   const [preview, setPreview] = useState("");
   // The result carries the name it was for, so "still checking" is derived
@@ -40,80 +40,56 @@ export default function Identity() {
   const lookup: Lookup = result?.name === preview ? result.lookup : { state: "unknown" };
   const checking = preview !== "" && result?.name !== preview;
 
-  const shown = username || preview;
 
   function confirm() {
     // Prefer Mojang's casing when we have it.
     setUsername(lookup.state === "premium" ? lookup.username : draft);
   }
 
+  // Once we know who it's for, the header chip carries it and this disappears —
+  // the store front shouldn't open with a form covering the packages.
+  if (username) return null;
+
   return (
     <section className="cl-identity cl-wrap" id="who">
-      <div className="cl-identity-card cl-neon cl-a1">
-        <figure className="cl-identity-skin">
-          {/* mc-heads renders a Steve silhouette for unknown names, so a typo
-              shows a placeholder rather than a broken image. */}
-          <img src={skinUrl(shown || "Steve", 260)} alt="" />
-          <figcaption>{shown || "You?"}</figcaption>
-        </figure>
+      <div className="cl-identity-bar">
+        <img className="cl-identity-head" src={avatarUrl(preview || "Steve", 64)} alt="" />
 
-        <div className="cl-identity-form">
+        <div className="cl-identity-copy">
           <h2>Who are we delivering to?</h2>
-
-          {username ? (
-            <>
-              <p>
-                Perks will be delivered to <b>{username}</b> in game, usually within a minute of paying.
-              </p>
-              <button type="button" className="cl-btn cl-btn-ghost cl-a3" onClick={clearUsername}>
-                Change username
-              </button>
-            </>
-          ) : (
-            <>
-              <p>
-                Your Minecraft username, exactly as it appears in game. This server runs in offline mode, so
-                double-check the spelling — we can&apos;t look it up for you.
-              </p>
-
-              <form
-                className="cl-identity-row"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  confirm();
-                }}
-              >
-                <input
-                  type="text"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder="e.g. Notch"
-                  aria-label="Minecraft username"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  maxLength={16}
-                />
-                <button className="cl-btn" type="submit" disabled={!draft.trim()}>
-                  Continue
-                </button>
-              </form>
-
-              {preview && !checking ? (
-                <p className={`cl-identity-note cl-note-${lookup.state}`}>
-                  {lookup.state === "premium" ? (
-                    <>
-                      Found <b>{lookup.username}</b> — that&apos;s a premium account, and this is their skin.
-                    </>
-                  ) : lookup.state === "not-premium" ? (
-                    <>No premium account with that name. That&apos;s fine here — just make sure the spelling matches
-                    what you use in game.</>
-                  ) : null}
-                </p>
-              ) : null}
-            </>
-          )}
+          <p>
+            {checking
+              ? "Checking that name…"
+              : lookup.state === "premium"
+                ? `Found ${lookup.username} — premium account.`
+                : lookup.state === "not-premium"
+                  ? "No premium account with that name. Fine here — just match your in-game spelling."
+                  : "Your Minecraft username, exactly as it appears in game."}
+          </p>
         </div>
+
+        <form
+          className="cl-identity-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            confirm();
+          }}
+        >
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="e.g. Notch"
+            aria-label="Minecraft username"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            maxLength={16}
+          />
+          <button className="cl-btn" type="submit" disabled={!draft.trim()}>
+            Continue
+          </button>
+        </form>
       </div>
     </section>
   );

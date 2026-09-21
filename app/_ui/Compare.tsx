@@ -20,12 +20,14 @@ const ACCENTS = ["cl-a1", "cl-a2", "cl-a3", "cl-a4"];
 export default function Compare({ packages }: { packages: Package[] }) {
   const [open, setOpen] = useState(false);
 
-  const rows = useMemo(() => {
+  const { rows, labelled } = useMemo(() => {
     const order: string[] = [];
     const byLabel = new Map<string, Map<number, string>>();
+    let anyLabel = false;
 
     packages.forEach((p, i) => {
       for (const perk of parseDescription(p.description).perks) {
+        if (perk.label) anyLabel = true;
         const key = (perk.label ?? perk.value).toLowerCase();
         if (!byLabel.has(key)) {
           byLabel.set(key, new Map());
@@ -35,14 +37,26 @@ export default function Compare({ packages }: { packages: Package[] }) {
       }
     });
 
-    return order
+    const rows = order
       .map((label) => ({ label, values: byLabel.get(label.toLowerCase())! }))
-      // A row only earns its place if more than one tier says something about
-      // it, or it carries a real value rather than a bare tick.
+      // A row earns its place if more than one tier mentions it, or it carries
+      // a real value rather than a bare tick.
       .filter((r) => r.values.size > 1 || [...r.values.values()].some((v) => v !== "yes"));
+
+    return { rows, labelled: anyLabel };
   }, [packages]);
 
-  if (packages.length < 2 || rows.length === 0) return null;
+  // Without the "Label: value" convention there is nothing to line up, so show
+  // each tier's perks side by side instead. Less precise, still comparable —
+  // and far better than the empty table this produced before.
+  const columns = useMemo(
+    () => packages.map((p) => parseDescription(p.description).perks.map((x) => x.raw)),
+    [packages],
+  );
+
+  const useMatrix = labelled && rows.length > 0;
+  if (packages.length < 2) return null;
+  if (!useMatrix && columns.every((c) => c.length === 0)) return null;
 
   return (
     <div className="cl-compare-block">
@@ -70,35 +84,50 @@ export default function Compare({ packages }: { packages: Package[] }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.label}>
-                  <th scope="row">{row.label}</th>
-                  {packages.map((p, i) => {
-                    const v = row.values.get(i);
-                    if (v === undefined)
-                      return (
-                        <td key={p.id}>
-                          <span className="cl-no" role="img" aria-label="Not included">
-                            &#8212;
-                          </span>
+              {useMatrix
+                ? rows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      {packages.map((p, i) => {
+                        const v = row.values.get(i);
+                        if (v === undefined)
+                          return (
+                            <td key={p.id}>
+                              <span className="cl-no" role="img" aria-label="Not included">
+                                &#8212;
+                              </span>
+                            </td>
+                          );
+                        if (v === "yes")
+                          return (
+                            <td key={p.id}>
+                              <span className="cl-yes" role="img" aria-label="Included">
+                                &#10003;
+                              </span>
+                            </td>
+                          );
+                        return (
+                          <td key={p.id} className="cl-compare-value">
+                            {v}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))
+                : (
+                    <tr>
+                      <th scope="row">Includes</th>
+                      {packages.map((p, i) => (
+                        <td key={p.id} className="cl-compare-list">
+                          <ul>
+                            {columns[i].map((perk) => (
+                              <li key={perk}>{perk}</li>
+                            ))}
+                          </ul>
                         </td>
-                      );
-                    if (v === "yes")
-                      return (
-                        <td key={p.id}>
-                          <span className="cl-yes" role="img" aria-label="Included">
-                            &#10003;
-                          </span>
-                        </td>
-                      );
-                    return (
-                      <td key={p.id} className="cl-compare-value">
-                        {v}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                      ))}
+                    </tr>
+                  )}
             </tbody>
           </table>
         </div>

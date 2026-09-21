@@ -24,6 +24,14 @@ export const STATUS = {
   max: 100,
 };
 
+// Which categories are bought in multiples. Quantity steppers and the x5/x10/x25
+// chips only appear for these — a lifetime rank has no business offering "x25".
+//
+// Tebex's own "Quantity Lock" still wins where it's set; this list decides the
+// rest, because by default Tebex reports every package as quantity-allowed.
+// Names are matched ignoring case and spaces.
+export const QTY_CATEGORIES: string[] = ["Crates", "Crate Keys", "Consumables"];
+
 /** Shown in the full-screen menu, mirroring the main site's socials. */
 export const SOCIALS: { label: string; href: string }[] = [
   { label: "Discord", href: "https://discord.gg/caelumsmp" },

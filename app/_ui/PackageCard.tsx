@@ -1,13 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { packageImage, price, type Package } from "@/app/_lib/tebex";
 import { Cube } from "@/app/_ui/art";
 import { useBasket } from "@/app/_ui/BasketProvider";
+import { QTY_CATEGORIES } from "@/app/_lib/config";
 
-// Whether a package can be bought in multiples comes from Tebex's own
-// `disable_quantity` field — no config list to keep in sync. Crate keys get the
-// stepper and the bulk chips; a rank doesn't.
 const BULK = [5, 10, 25];
 
 // Placeholder block colours, matching the accent the card is already using, so
@@ -19,21 +17,25 @@ const BLOCKS: Record<number, [string, string, string]> = {
   4: ["#a77bff", "#7448d6", "#5631ab"],
 };
 
+const norm = (s: string) => s.toLowerCase().replace(/\s+/g, "");
+
 export default function PackageCard({ pkg, accent }: { pkg: Package; accent: number }) {
   const { add, busy, username } = useBasket();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  const info = useRef<HTMLDialogElement>(null);
 
-  // Split the panel-authored HTML into a lead paragraph and its perk bullets,
-  // so a 1000-character description doesn't make a card a metre tall.
+  // The card says what the package *is*. The perk list, permissions and small
+  // print live behind the info button — a rank description runs to a thousand
+  // characters and buries the price.
   const { lead, perks, extra } = useMemo(() => parseDescription(pkg.description), [pkg.description]);
-  const SHOWN = 5;
-  const visible = open ? perks : perks.slice(0, SHOWN);
-  const hidden = perks.length - visible.length;
 
-  const allowQty = !pkg.disable_quantity;
+  // Tebex's Quantity Lock wins where it's set. Otherwise only categories that
+  // are genuinely bought in multiples get a stepper: by default Tebex reports
+  // every package as quantity-allowed, which put "x25" on lifetime ranks.
+  const allowQty = !pkg.disable_quantity && QTY_CATEGORIES.some((c) => norm(c) === norm(pkg.category.name));
+
   const max = pkg.user_limit > 0 ? pkg.user_limit : 64;
   const img = packageImage(pkg);
   const onSale = pkg.discount > 0;
@@ -77,22 +79,7 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
       </figure>
 
       <div className="cl-pkg-desc">
-        {lead ? <p className="cl-pkg-lead">{lead}</p> : null}
-        {perks.length ? (
-          <ul>
-            {visible.map((perk) => (
-              <li key={perk.raw}>
-                {perk.label ? <b>{perk.label}:</b> : null} {perk.value}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {hidden > 0 || (open && (extra || perks.length > SHOWN)) ? (
-          <button type="button" className="cl-more" onClick={() => setOpen(!open)}>
-            {open ? "Show less" : `+${hidden} more`}
-          </button>
-        ) : null}
-        {open && extra ? <p className="cl-pkg-fine">{extra}</p> : null}
+        <p className="cl-pkg-lead">{lead || pkg.name}</p>
       </div>
 
       <p className="cl-price">
@@ -133,9 +120,22 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
             </button>
           </div>
         ) : null}
+
         <button className="cl-btn" type="button" disabled={busy} onClick={addToBasket}>
           {added ? "Added" : busy ? "Adding…" : "Add to basket"}
         </button>
+
+        {perks.length || extra ? (
+          <button
+            type="button"
+            className="cl-info"
+            aria-label={`What's included in ${pkg.name}`}
+            title="What's included"
+            onClick={() => info.current?.showModal()}
+          >
+            i
+          </button>
+        ) : null}
       </div>
 
       {error ? (
@@ -143,6 +143,48 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
           {error}
         </p>
       ) : null}
+
+      {/* Native <dialog> gives focus trapping and Esc-to-close for free. */}
+      <dialog ref={info} className="cl-modal" aria-label={`${pkg.name} details`}>
+        <div className={`cl-modal-head cl-a${accent}`}>
+          <h3>{pkg.name}</h3>
+          <button type="button" onClick={() => info.current?.close()} aria-label="Close">
+            &times;
+          </button>
+        </div>
+
+        <div className="cl-modal-body">
+          {lead ? <p className="cl-pkg-lead">{lead}</p> : null}
+          {perks.length ? (
+            <>
+              <h4>What&apos;s included</h4>
+              <ul className="cl-modal-perks">
+                {perks.map((perk) => (
+                  <li key={perk.raw}>
+                    {perk.label ? <b>{perk.label}:</b> : null} {perk.value}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {extra ? <p className="cl-pkg-fine">{extra}</p> : null}
+        </div>
+
+        <div className="cl-modal-foot">
+          <span className="cl-modal-price">{price(pkg.total_price, pkg.currency)}</span>
+          <button
+            className="cl-btn"
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              info.current?.close();
+              void addToBasket();
+            }}
+          >
+            Add to basket
+          </button>
+        </div>
+      </dialog>
     </article>
   );
 }

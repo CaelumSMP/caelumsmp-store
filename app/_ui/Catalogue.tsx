@@ -49,7 +49,8 @@ export default function Catalogue() {
     );
   }
 
-  const shown = categories.filter((c) => selected === "all" || categorySlug(c) === selected);
+  // One category at a time now that the "Everything" tab is gone.
+  const shown = categories.filter((c) => categorySlug(c) === selected);
 
   return (
     <>

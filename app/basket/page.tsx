@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { price, skinUrl } from "@/app/_lib/tebex";
+import { avatarUrl, price } from "@/app/_lib/tebex";
 import { useBasket } from "@/app/_ui/BasketProvider";
 import Strip from "@/app/_ui/Strip";
 import Footer from "@/app/_ui/Footer";
@@ -90,7 +90,7 @@ export default function BasketPage() {
 
               {username ? (
                 <p className="cl-basket-who">
-                  <img src={skinUrl(username, 64)} alt="" />
+                  <img src={avatarUrl(username, 64)} alt="" />
                   Delivering to <b>{username}</b>
                 </p>
               ) : null}

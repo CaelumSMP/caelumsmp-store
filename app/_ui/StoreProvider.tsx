@@ -9,7 +9,8 @@ import { getCategories, categorySlug, type Category } from "@/app/_lib/tebex";
 type Ctx = {
   categories: Category[] | null;
   error: string | null;
-  selected: string; // "all" or a category slug
+  /** Always a real category slug — there is no "everything" view. */
+  selected: string;
   setSelected: (slug: string) => void;
   selectedName: string;
 };
@@ -25,7 +26,7 @@ export function useStore() {
 export default function StoreProvider({ children }: { children: React.ReactNode }) {
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState("all");
+  const [selected, setSelected] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -33,10 +34,12 @@ export default function StoreProvider({ children }: { children: React.ReactNode 
       .then((cats) => {
         if (cancelled) return;
         setCategories(cats);
-        // A category can be linked directly (#c-ranks); honour it now that we
-        // know which slugs exist.
-        const fromHash = location.hash.startsWith("#c-") ? location.hash.slice(3) : "all";
-        if (cats.some((c) => categorySlug(c) === fromHash)) setSelected(fromHash);
+        // A category can be linked directly (#c-ranks); otherwise open on the
+        // first one, so the store always shows packages rather than a wall of
+        // every category at once.
+        const fromHash = location.hash.startsWith("#c-") ? location.hash.slice(3) : "";
+        const valid = cats.some((c) => categorySlug(c) === fromHash);
+        setSelected(valid ? fromHash : cats[0] ? categorySlug(cats[0]) : "");
       })
       .catch((e) => !cancelled && setError(e instanceof Error ? e.message : "Could not reach the store"));
     return () => {
@@ -45,17 +48,15 @@ export default function StoreProvider({ children }: { children: React.ReactNode 
   }, []);
 
   useEffect(() => {
+    if (!selected) return;
     try {
-      history.replaceState(null, "", selected === "all" ? location.pathname : `#c-${selected}`);
+      history.replaceState(null, "", `#c-${selected}`);
     } catch {
       /* replaceState can throw in odd embedding contexts; selection still works */
     }
   }, [selected]);
 
-  const selectedName =
-    selected === "all"
-      ? "Everything"
-      : categories?.find((c) => categorySlug(c) === selected)?.name || "Everything";
+  const selectedName = categories?.find((c) => categorySlug(c) === selected)?.name || "…";
 
   return (
     <StoreContext.Provider value={{ categories, error, selected, setSelected, selectedName }}>
