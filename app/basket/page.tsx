@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { getAuthUrl, price } from "@/app/_lib/tebex";
+import { price, skinUrl } from "@/app/_lib/tebex";
 import { useBasket } from "@/app/_ui/BasketProvider";
 import Strip from "@/app/_ui/Strip";
 import Footer from "@/app/_ui/Footer";
 import { SITE_URL, DISCORD } from "@/app/_lib/config";
 
 export default function BasketPage() {
-  const { basket, remove, busy } = useBasket();
+  const { basket, remove, busy, username } = useBasket();
   const [error, setError] = useState<string | null>(null);
   const [going, setGoing] = useState(false);
 
@@ -17,27 +17,16 @@ export default function BasketPage() {
 
   // Minecraft stores tie the purchase to a username before payment. Tebex hosts
   // that step, then sends the customer to its own checkout. We never see a card.
-  async function checkout() {
+  function checkout() {
     if (!basket) return;
     setGoing(true);
     setError(null);
-    try {
-      const here = `${window.location.origin}/basket`;
-      const auth = await getAuthUrl(basket.ident, here);
-      if (auth) {
-        window.location.href = auth;
-        return;
-      }
-      if (basket.links.checkout) {
-        window.location.href = basket.links.checkout;
-        return;
-      }
-      setError("Tebex didn't return a checkout link. The store may still be in onboarding.");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Checkout failed");
-    } finally {
-      setGoing(false);
+    if (basket.links.checkout) {
+      window.location.href = basket.links.checkout;
+      return;
     }
+    setError("Tebex didn't return a checkout link. The store may still be in onboarding.");
+    setGoing(false);
   }
 
   return (
@@ -99,9 +88,15 @@ export default function BasketPage() {
                 <p style={{ marginTop: 14, fontSize: 14, color: "var(--coral)" }}>{error}</p>
               ) : null}
 
+              {username ? (
+                <p className="cl-basket-who">
+                  <img src={skinUrl(username, 64)} alt="" />
+                  Delivering to <b>{username}</b>
+                </p>
+              ) : null}
+
               <p style={{ marginTop: 16, fontSize: 13, color: "var(--dim)" }}>
-                Payment is handled by Tebex. You&apos;ll confirm your Minecraft username before paying, and perks are
-                delivered in-game within a minute.
+                Payment is handled by Tebex. Perks are delivered in-game within a minute of paying.
               </p>
             </aside>
           </div>

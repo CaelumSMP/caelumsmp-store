@@ -3,6 +3,7 @@ import Strip from "@/app/_ui/Strip";
 import Footer from "@/app/_ui/Footer";
 import Board from "@/app/_ui/Board";
 import Catalogue from "@/app/_ui/Catalogue";
+import Identity from "@/app/_ui/Identity";
 import { DISCORD, SITE_URL } from "@/app/_lib/config";
 
 // The store front. Order is deliberate and follows what the big Minecraft
@@ -33,6 +34,8 @@ export default function StoreFront() {
       </section>
 
       <Board />
+
+      <Identity />
 
       <Catalogue />
 

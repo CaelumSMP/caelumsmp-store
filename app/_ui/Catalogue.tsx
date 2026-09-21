@@ -70,14 +70,15 @@ export default function Catalogue() {
             />
           ) : null}
 
-          <Compare packages={category.packages} />
-
           {/* Tebex's own "display type" on the category decides grid vs list. */}
           <div className={`cl-grid${category.display_type === "list" ? " cl-list" : ""}`}>
             {category.packages.map((p, i) => (
               <PackageCard key={p.id} pkg={p} accent={(i % 4) + 1} />
             ))}
           </div>
+
+          {/* Below the cards: you pick a tier first, then check the detail. */}
+          <Compare packages={category.packages} />
         </section>
       ))}
     </>

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { addPackage, createBasket, getAuthUrl, getBasket, removePackage, type Basket } from "@/app/_lib/tebex";
+import { addPackage, createBasket, getBasket, removePackage, type Basket } from "@/app/_lib/tebex";
 
 // The basket ident is the only thing we persist. Everything else is re-fetched
 // from Tebex, so the browser never holds a stale price or line total.
@@ -10,14 +10,15 @@ import { addPackage, createBasket, getAuthUrl, getBasket, removePackage, type Ba
 // devices. Tebex has no anonymous cross-device basket either; if that's ever
 // wanted it needs accounts, which this store doesn't have.
 const KEY = "caelum.basket";
-// What the customer was adding when we bounced them to Tebex to link their
-// Minecraft username. Replayed when they come back.
-const PENDING = "caelum.pending";
+const NAME_KEY = "caelum.username";
 
 type Ctx = {
   basket: Basket | null;
   count: number;
   busy: boolean;
+  /** Who the perks get delivered to. Null until they tell us. */
+  username: string | null;
+  setUsername: (name: string) => void;
   add: (packageId: number, quantity: number) => Promise<void>;
   remove: (packageId: number) => Promise<void>;
   refresh: () => Promise<void>;
@@ -50,10 +51,18 @@ function writeIdent(id: string | null) {
     else localStorage.setItem(KEY, id);
   } catch {}
 }
+function readName(): string | null {
+  try {
+    return localStorage.getItem(NAME_KEY);
+  } catch {
+    return null;
+  }
+}
 
 export default function BasketProvider({ children }: { children: React.ReactNode }) {
   const [basket, setBasket] = useState<Basket | null>(null);
   const [busy, setBusy] = useState(false);
+  const [username, setName] = useState<string | null>(null);
 
   const load = useCallback(async (id: string) => {
     try {
@@ -70,8 +79,10 @@ export default function BasketProvider({ children }: { children: React.ReactNode
   // unmount can't set state on a dead component.
   useEffect(() => {
     const saved = readIdent();
-    if (!saved) return;
+    const savedName = readName();
     let cancelled = false;
+    if (savedName) queueMicrotask(() => !cancelled && setName(savedName));
+    if (!saved) return () => { cancelled = true; };
     (async () => {
       try {
         const b = await getBasket(saved);
@@ -87,51 +98,37 @@ export default function BasketProvider({ children }: { children: React.ReactNode
     };
   }, []);
 
-  // Returning from Tebex's login step: finish what they were doing.
-  useEffect(() => {
-    if (!basket?.username) return;
-    let pending: { packageId: number; quantity: number } | null = null;
+  /** Changing who it's for starts a fresh basket — Tebex ties one to the other. */
+  const setUsername = useCallback((name: string) => {
+    const clean = name.trim();
+    if (!clean) return;
     try {
-      const raw = sessionStorage.getItem(PENDING);
-      if (raw) pending = JSON.parse(raw);
-      sessionStorage.removeItem(PENDING);
+      localStorage.setItem(NAME_KEY, clean);
     } catch {}
-    if (!pending) return;
-    void addPackage(basket.ident, pending.packageId, pending.quantity).then(setBasket).catch(() => {});
-  }, [basket?.username, basket?.ident]);
+    setName(clean);
+    if (basket && basket.username !== clean) {
+      writeIdent(null);
+      setBasket(null);
+    }
+  }, [basket]);
 
   const ensure = useCallback(async () => {
     const existing = basket?.ident ?? readIdent();
     if (existing) return existing;
-    const b = await createBasket(window.location.origin);
+    const name = username ?? readName();
+    if (!name) throw new Error("NO_USERNAME");
+    const b = await createBasket(window.location.origin, name);
     writeIdent(b.ident);
     setBasket(b);
     return b.ident;
-  }, [basket?.ident]);
+  }, [basket?.ident, username]);
 
   const add = useCallback(
     async (packageId: number, quantity: number) => {
       setBusy(true);
       try {
         const id = await ensure();
-        try {
-          setBasket(await addPackage(id, packageId, quantity));
-        } catch (e) {
-          // Minecraft stores reject adds until the basket has a username on it.
-          // Stash the intent, send them to Tebex to log in, replay on return.
-          const needsLogin = e instanceof Error && /login/i.test(e.message);
-          if (!needsLogin) throw e;
-          const url = await getAuthUrl(id, window.location.href);
-          if (!url) {
-            throw new Error(
-              "This store has no login method configured yet — finish the store setup in the Tebex panel.",
-            );
-          }
-          try {
-            sessionStorage.setItem(PENDING, JSON.stringify({ packageId, quantity }));
-          } catch {}
-          window.location.href = url;
-        }
+        setBasket(await addPackage(id, packageId, quantity));
       } finally {
         setBusy(false);
       }
@@ -161,6 +158,6 @@ export default function BasketProvider({ children }: { children: React.ReactNode
   const count = basket?.packages.reduce((n, p) => n + (p.in_basket?.quantity || 0), 0) ?? 0;
 
   return (
-    <BasketContext.Provider value={{ basket, count, busy, add, remove, refresh }}>{children}</BasketContext.Provider>
+    <BasketContext.Provider value={{ basket, count, busy, username, setUsername, add, remove, refresh }}>{children}</BasketContext.Provider>
   );
 }

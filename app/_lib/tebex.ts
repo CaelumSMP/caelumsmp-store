@@ -132,15 +132,30 @@ export async function getPackage(slug: string): Promise<Package | undefined> {
 
 // ---------- basket ----------
 
-export async function createBasket(returnTo: string): Promise<Basket> {
+/**
+ * On a Minecraft: Offline store Tebex can't verify identities, so there is no
+ * OAuth step — /baskets/{ident}/auth returns an empty list. Instead the
+ * username is attached at creation, and that alone satisfies the "user must
+ * login before adding packages" rule. Verified against the live API.
+ *
+ * (`username_id` and `ip_address` exist too, but both demand Basic auth with
+ * the private key, so they're server-only and unnecessary here.)
+ */
+export async function createBasket(returnTo: string, username: string): Promise<Basket> {
   return req<Basket>(`${ACCOUNT()}/baskets`, {
     method: "POST",
     body: JSON.stringify({
       complete_url: `${returnTo}/basket?done=1`,
       cancel_url: `${returnTo}/basket`,
       complete_auto_redirect: true,
+      username,
     }),
   });
+}
+
+/** Full-body skin render. Falls back to a Steve silhouette for unknown names. */
+export function skinUrl(username: string, size = 200) {
+  return `https://mc-heads.net/body/${encodeURIComponent(username || "Steve")}/${size}`;
 }
 
 export async function getBasket(ident: string): Promise<Basket> {
