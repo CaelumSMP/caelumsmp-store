@@ -8,7 +8,7 @@ import { useBasket } from "@/app/_ui/BasketProvider";
 import { getStatus, fmt, type Status } from "@/app/_lib/status";
 import { NAV, SITE_URL, SERVER_IP, DISCORD } from "@/app/_lib/config";
 
-// A port of the main site's top strip, so crossing from caelumsmp.net to the
+// A port of the main site's top strip, so crossing from caelumsmp.com to the
 // store reads as the same site rather than a different one. Same structure,
 // same sizes, same breakpoints — see the "Shared header" block in globals.css.
 //

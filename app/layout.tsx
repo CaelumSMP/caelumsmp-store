@@ -4,7 +4,7 @@ import BasketProvider from "@/app/_ui/BasketProvider";
 import StoreProvider from "@/app/_ui/StoreProvider";
 import "./globals.css";
 
-// Same two faces as the main site, so the store and caelumsmp.net read as one brand.
+// Same two faces as the main site, so the store and caelumsmp.com read as one brand.
 const display = Rubik_Mono_One({ weight: "400", subsets: ["latin"], variable: "--display" });
 const body = Space_Grotesk({ subsets: ["latin"], variable: "--body" });
 

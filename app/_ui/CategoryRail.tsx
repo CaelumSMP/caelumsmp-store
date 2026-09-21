@@ -8,7 +8,9 @@ import { useStore } from "@/app/_ui/StoreProvider";
 // too, and the hash keeps a filtered view shareable.
 export default function CategoryRail() {
   const { categories, selected, setSelected } = useStore();
-  if (!categories || categories.length < 2) return null;
+  // Shown even with a single category: the tabs are how the store's shape is
+  // communicated, and hiding them made it look like categories didn't exist.
+  if (!categories || categories.length === 0) return null;
 
   return (
     <div className="cl-rail cl-a1">

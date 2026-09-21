@@ -1,9 +1,14 @@
 // Store chrome that Tebex has no field for. Package names, prices, descriptions
 // and artwork all come from the Tebex panel — only put things here that it
 // genuinely can't hold. Keep in sync with ../caelum-web-fable/data/content.json.
-export const SERVER_IP = "play.caelumsmp.net";
+export const SERVER_IP = "play.caelumsmp.com";
 export const DISCORD = "https://discord.gg/caelumsmp";
-export const SITE_URL = "https://caelumsmp.net";
+// In dev the main site runs on :3000, so header and footer links stay local
+// instead of bouncing you to production mid-test. Override with
+// NEXT_PUBLIC_SITE_URL for a staging deploy.
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://caelumsmp.com");
 
 /** Shown in the info board. Bump when a new season starts. */
 export const SEASON = "Season 1";

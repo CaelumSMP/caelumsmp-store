@@ -171,10 +171,20 @@ export async function removePackage(ident: string, packageId: number): Promise<B
  * unfinished store setup looks like.
  */
 export async function getAuthUrl(ident: string, returnUrl: string): Promise<string | null> {
-  const opts = await req<{ name: string; url: string }[]>(
+  if (!TOKEN) throw new Error("NEXT_PUBLIC_TEBEX_TOKEN is not set");
+  const res = await fetch(
     `${ACCOUNT()}/baskets/${ident}/auth?returnUrl=${encodeURIComponent(returnUrl)}`,
+    { cache: "no-store" },
   );
-  return opts[0]?.url ?? null;
+  if (!res.ok) return null;
+
+  // This endpoint answers with a bare array, unlike every other one which wraps
+  // its payload in { data }. Handle both rather than assuming, and flatten:
+  // an unconfigured store replies [[]], which is not the same as [].
+  const body = await res.json();
+  const raw = Array.isArray(body) ? body : body?.data;
+  const options = (Array.isArray(raw) ? raw.flat() : []) as { name?: string; url?: string }[];
+  return options.find((o) => o?.url)?.url ?? null;
 }
 
 /** Money as Tebex reports it — two decimals, currency after the amount. */

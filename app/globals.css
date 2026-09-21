@@ -809,7 +809,7 @@ img { max-width: 100%; }
 /* ==========================================================================
    Shared header
    A port of ../caelum-web-fable/app/(site)/site.module.css so moving between
-   caelumsmp.net and the store reads as one site, not two. Values here are
+   caelumsmp.com and the store reads as one site, not two. Values here are
    copied deliberately — keep them identical if the main site's header changes.
    ========================================================================== */
 
@@ -980,4 +980,12 @@ img { max-width: 100%; }
   .cl-pill-discord .cl-pill-btn { display: none; }
   .cl-pill { padding-right: 7px; }
   .cl-pills .cl-pill:first-child .cl-pill-btn { display: none; }
+}
+
+/* An add-to-basket failure shown on the card itself. Most often this is Tebex
+   refusing because the basket has no username yet. */
+.cl-pkg-error {
+  padding: 0 24px 22px;
+  font-size: 14px;
+  color: var(--coral);
 }

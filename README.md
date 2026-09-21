@@ -40,7 +40,7 @@ traffic level at which it starts costing money.
 [prohibits commercial use](https://vercel.com/docs/plans/hobby) and caps transfer
 at 100GB, pausing the project when exceeded. A store is commercial by definition.
 
-**No nameserver change needed.** `store.caelumsmp.net` is a subdomain, so add it
+**No nameserver change needed.** `store.caelumsmp.com` is a subdomain, so add it
 as a custom domain in the Pages dashboard first, then point a CNAME at
 `<site>.pages.dev` from the existing DNS provider. Only an apex domain would
 require moving nameservers. Cloudflare's DDoS protection applies either way,

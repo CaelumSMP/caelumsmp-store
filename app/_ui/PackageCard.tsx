@@ -14,6 +14,7 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
   const { add, busy } = useBasket();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const allowQty = !pkg.disable_quantity;
   const max = pkg.user_limit > 0 ? pkg.user_limit : 64;
@@ -23,9 +24,14 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
   const set = (n: number) => setQty(Math.min(Math.max(Math.round(n) || 1, 1), max));
 
   async function addToBasket() {
-    await add(pkg.id, allowQty ? qty : 1);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
+    setError(null);
+    try {
+      await add(pkg.id, allowQty ? qty : 1);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't add that to the basket");
+    }
   }
 
   return (
@@ -88,6 +94,12 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
           {added ? "Added" : busy ? "Adding…" : "Add to basket"}
         </button>
       </div>
+
+      {error ? (
+        <p className="cl-pkg-error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </article>
   );
 }
