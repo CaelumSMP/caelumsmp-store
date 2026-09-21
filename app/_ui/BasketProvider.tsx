@@ -35,37 +35,57 @@ export function useBasket() {
 // CORS headers and the public token is documented as safe to expose, so
 // proxying these through route handlers would add files and a hop for nothing.
 
+// Storage access is wrapped everywhere: it throws in private windows and with
+// site data blocked, and the store must still work without it.
+function readIdent(): string | null {
+  try {
+    return localStorage.getItem(KEY);
+  } catch {
+    return null;
+  }
+}
+function writeIdent(id: string | null) {
+  try {
+    if (id === null) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, id);
+  } catch {}
+}
+
 export default function BasketProvider({ children }: { children: React.ReactNode }) {
-  const [ident, setIdent] = useState<string | null>(null);
   const [basket, setBasket] = useState<Basket | null>(null);
   const [busy, setBusy] = useState(false);
-
-  // Read the stored ident once on mount. Wrapped because storage throws in
-  // private windows and with site data blocked.
-  useEffect(() => {
-    try {
-      setIdent(localStorage.getItem(KEY));
-    } catch {
-      /* no storage — the basket just won't survive a reload */
-    }
-  }, []);
 
   const load = useCallback(async (id: string) => {
     try {
       setBasket(await getBasket(id));
     } catch {
       // Tebex expires baskets; a dead ident should not wedge the store.
-      try {
-        localStorage.removeItem(KEY);
-      } catch {}
-      setIdent(null);
+      writeIdent(null);
       setBasket(null);
     }
   }, []);
 
+  // Restore a previous basket on mount. Inlined rather than calling load() so
+  // nothing is set synchronously during the effect, and cancellable so a fast
+  // unmount can't set state on a dead component.
   useEffect(() => {
-    if (ident) void load(ident);
-  }, [ident, load]);
+    const saved = readIdent();
+    if (!saved) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const b = await getBasket(saved);
+        if (!cancelled) setBasket(b);
+      } catch {
+        // Tebex expires baskets; a dead ident should not wedge the store.
+        writeIdent(null);
+        if (!cancelled) setBasket(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Returning from Tebex's login step: finish what they were doing.
   useEffect(() => {
@@ -81,15 +101,13 @@ export default function BasketProvider({ children }: { children: React.ReactNode
   }, [basket?.username, basket?.ident]);
 
   const ensure = useCallback(async () => {
-    if (ident) return ident;
+    const existing = basket?.ident ?? readIdent();
+    if (existing) return existing;
     const b = await createBasket(window.location.origin);
-    try {
-      localStorage.setItem(KEY, b.ident);
-    } catch {}
-    setIdent(b.ident);
+    writeIdent(b.ident);
     setBasket(b);
     return b.ident;
-  }, [ident]);
+  }, [basket?.ident]);
 
   const add = useCallback(
     async (packageId: number, quantity: number) => {
@@ -123,20 +141,22 @@ export default function BasketProvider({ children }: { children: React.ReactNode
 
   const remove = useCallback(
     async (packageId: number) => {
-      if (!ident) return;
+      const id = basket?.ident;
+      if (!id) return;
       setBusy(true);
       try {
-        setBasket(await removePackage(ident, packageId));
+        setBasket(await removePackage(id, packageId));
       } finally {
         setBusy(false);
       }
     },
-    [ident],
+    [basket?.ident],
   );
 
   const refresh = useCallback(async () => {
-    if (ident) await load(ident);
-  }, [ident, load]);
+    const id = basket?.ident;
+    if (id) await load(id);
+  }, [basket?.ident, load]);
 
   const count = basket?.packages.reduce((n, p) => n + (p.in_basket?.quantity || 0), 0) ?? 0;
 

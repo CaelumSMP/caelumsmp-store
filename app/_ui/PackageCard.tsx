@@ -1,14 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { packageImage, price, type Package } from "@/app/_lib/tebex";
+import { Cube } from "@/app/_ui/art";
 import { useBasket } from "@/app/_ui/BasketProvider";
 
 // Whether a package can be bought in multiples comes from Tebex's own
 // `disable_quantity` field — no config list to keep in sync. Crate keys get the
 // stepper and the bulk chips; a rank doesn't.
 const BULK = [5, 10, 25];
+
+// Placeholder block colours, matching the accent the card is already using, so
+// a package with no artwork still gets something to look at.
+const BLOCKS: Record<number, [string, string, string]> = {
+  1: ["#c6ff3d", "#8fc41f", "#6a9612"],
+  2: ["#ff5a5f", "#c93b40", "#9c2b30"],
+  3: ["#4de3ff", "#22a9c9", "#167f99"],
+  4: ["#a77bff", "#7448d6", "#5631ab"],
+};
 
 export default function PackageCard({ pkg, accent }: { pkg: Package; accent: number }) {
   const { add, busy } = useBasket();
@@ -20,6 +29,7 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
   const max = pkg.user_limit > 0 ? pkg.user_limit : 64;
   const img = packageImage(pkg);
   const onSale = pkg.discount > 0;
+  const blocks = BLOCKS[accent] ?? BLOCKS[1];
 
   const set = (n: number) => setQty(Math.min(Math.max(Math.round(n) || 1, 1), max));
 
@@ -36,22 +46,20 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
 
   return (
     <article className={`cl-pkg cl-neon cl-a${accent}`}>
-      <div className="cl-pkg-top">
-        {onSale ? <span className="cl-badge">&minus;{price(pkg.discount, pkg.currency)} off</span> : <span />}
+      <div className="cl-pkg-head">
+        <h3>{pkg.name}</h3>
+        {onSale ? <span className="cl-badge">Sale</span> : null}
       </div>
 
-      {img ? (
-        <figure className="cl-pkg-fig">
-          {/* Tebex serves package art from its own CDN on domains we don't control,
-              so a plain <img> avoids configuring remotePatterns for next/image. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <figure className="cl-pkg-fig">
+        {img ? (
+          /* Tebex serves package art from its own CDN on domains we don't
+             control, so a plain <img> avoids configuring remotePatterns. */
           <img src={img} alt="" loading="lazy" />
-        </figure>
-      ) : null}
-
-      <h3>
-        <Link href={`/package/${pkg.slug || pkg.id}`}>{pkg.name}</Link>
-      </h3>
+        ) : (
+          <Cube size={84} top={blocks[0]} left={blocks[1]} right={blocks[2]} />
+        )}
+      </figure>
 
       {/* Descriptions are authored in the Tebex panel and contain markup. */}
       <div className="cl-pkg-desc" dangerouslySetInnerHTML={{ __html: pkg.description }} />
@@ -59,6 +67,10 @@ export default function PackageCard({ pkg, accent }: { pkg: Package; accent: num
       <p className="cl-price">
         {onSale ? <s>{price(pkg.base_price, pkg.currency)}</s> : null}
         <span>{price(pkg.total_price * (allowQty ? qty : 1), pkg.currency)}</span>
+        <span className="cl-price-note">
+          {pkg.type === "subscription" ? "per month" : "one-time"}
+          {allowQty && qty > 1 ? ` · ${qty} ×  ${price(pkg.total_price, pkg.currency)}` : ""}
+        </span>
       </p>
 
       {allowQty ? (

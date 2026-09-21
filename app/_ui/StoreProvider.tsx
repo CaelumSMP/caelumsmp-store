@@ -30,19 +30,19 @@ export default function StoreProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     let cancelled = false;
     getCategories()
-      .then((cats) => !cancelled && setCategories(cats))
+      .then((cats) => {
+        if (cancelled) return;
+        setCategories(cats);
+        // A category can be linked directly (#c-ranks); honour it now that we
+        // know which slugs exist.
+        const fromHash = location.hash.startsWith("#c-") ? location.hash.slice(3) : "all";
+        if (cats.some((c) => categorySlug(c) === fromHash)) setSelected(fromHash);
+      })
       .catch((e) => !cancelled && setError(e instanceof Error ? e.message : "Could not reach the store"));
     return () => {
       cancelled = true;
     };
   }, []);
-
-  // A category can be linked directly (#c-ranks); honour that once loaded.
-  useEffect(() => {
-    if (!categories) return;
-    const fromHash = location.hash.startsWith("#c-") ? location.hash.slice(3) : "all";
-    if (categories.some((c) => categorySlug(c) === fromHash)) setSelected(fromHash);
-  }, [categories]);
 
   useEffect(() => {
     try {

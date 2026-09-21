@@ -363,52 +363,65 @@ img { max-width: 100%; }
 .cl-pkg:hover { transform: translateY(-6px) rotate(-0.6deg); }
 .cl-pkg > * { position: relative; }
 
-.cl-pkg-top {
+/* The name sits on a solid accent plate, like a rank nameplate in game. It's
+   the single biggest thing that makes a card read as a product rather than a
+   paragraph, and it works without any artwork. */
+.cl-pkg-head {
+  position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  /* Reserve the badge row's height even when a package has no badge, so titles
-     line up across a row of cards. 46px = 24px top padding + a 22px badge,
-     because box-sizing is border-box. */
-  height: 46px;
-  padding: 24px 24px 0;
+  padding: 14px 20px;
+  background: var(--c);
+  color: var(--ink);
 }
-
-.cl-pkg-fig {
-  display: grid;
-  place-items: center;
-  height: 150px;
-  margin: 0 24px;
-  background:
-    linear-gradient(rgba(4, 19, 28, 0.14) 50%, transparent 50%) 0 0 / 100% 36px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 50%, transparent 50%) 0 0 / 36px 100%,
-    var(--c);
-  clip-path: var(--notch);
-  overflow: hidden;
-}
-.cl-pkg-fig img {
-  max-height: 118%;
-  width: auto;
-  filter: drop-shadow(8px 8px 0 rgba(4, 19, 28, 0.32));
-}
-
-.cl-pkg h3 {
-  padding: 0 24px;
-  font: 400 clamp(19px, 2vw, 25px) / 1.1 var(--display);
+.cl-pkg-head h3 {
+  padding: 0;
+  font: 400 clamp(17px, 1.9vw, 22px) / 1.1 var(--display);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
+.cl-pkg-head h3 a { color: var(--ink); }
+.cl-pkg-head .cl-badge {
+  flex: none;
+  background: var(--ink);
+  color: var(--c);
+}
+
+.cl-pkg-fig {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 170px;
+  /* The same block-and-scanline wash the main site uses on article covers, so
+     a package with no artwork still looks deliberate instead of empty. */
+  background:
+    /* vignette keeps the art centre bright and the edges settled */
+    radial-gradient(ellipse 70% 70% at 50% 45%, transparent, rgba(4, 19, 28, 0.35)),
+    linear-gradient(rgba(4, 19, 28, 0.13) 50%, transparent 50%) 0 0 / 100% 34px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 50%, transparent 50%) 0 0 / 34px 100%,
+    color-mix(in srgb, var(--c) 11%, #08202e);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.cl-pkg-fig img {
+  max-height: 130%;
+  width: auto;
+  filter: drop-shadow(8px 8px 0 rgba(4, 19, 28, 0.32));
+}
+/* Floating placeholder block when the package has no image of its own. */
+.cl-pkg-fig svg { animation: cl-spin 7s ease-in-out infinite alternate; filter: drop-shadow(0 10px 0 rgba(4, 19, 28, 0.28)); }
 
 .cl-pkg-desc {
-  padding: 0 24px;
+  padding: 0 22px;
   font-size: 15px;
-  color: var(--dim);
+  color: var(--soft);
 }
 .cl-pkg-desc ul { display: grid; gap: 7px; }
 .cl-pkg-desc li {
-  padding-left: 20px;
-  background: linear-gradient(var(--c), var(--c)) 0 7px / 10px 10px no-repeat;
+  padding-left: 22px;
+  background: linear-gradient(var(--c), var(--c)) 0 6px / 11px 11px no-repeat;
 }
 .cl-pkg-desc p + p, .cl-pkg-desc ul + p { margin-top: 0.8em; }
 
@@ -417,18 +430,26 @@ img { max-width: 100%; }
   align-items: baseline;
   flex-wrap: wrap;           /* a struck-through original + the new price must not overflow */
   gap: 4px 10px;
-  padding: 0 24px;
+  padding: 16px 22px 0;
   margin-top: auto;
-  font: 700 clamp(24px, 2.7vw, 34px) / 1.1 var(--body);
+  font: 700 clamp(26px, 2.9vw, 36px) / 1.1 var(--body);
   letter-spacing: -0.5px;
   color: var(--c);
   overflow-wrap: anywhere;
 }
 .cl-price s { font-size: 0.5em; color: var(--dim); }
+.cl-price-note {
+  width: 100%;
+  margin-top: 2px;
+  font: 700 12px/1 var(--body);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
 
 /* Wraps so the stepper and the button stack instead of squeezing the label onto
    two lines in a narrow card. */
-.cl-pkg-foot { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 24px 26px; }
+.cl-pkg-foot { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 22px 22px; }
 .cl-pkg-foot .cl-btn { flex: 1 1 140px; padding: 15px 16px; }
 
 /* ---------- quantity stepper (crate keys, etc.) ---------- */
@@ -465,7 +486,7 @@ img { max-width: 100%; }
 .cl-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 /* Bulk shortcuts: "x5  x10  x25" chips under a key package. */
-.cl-bulk { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 24px; }
+.cl-bulk { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 22px 0; }
 .cl-bulk button {
   padding: 7px 11px;
   border: 0;
@@ -985,7 +1006,7 @@ img { max-width: 100%; }
 /* An add-to-basket failure shown on the card itself. Most often this is Tebex
    refusing because the basket has no username yet. */
 .cl-pkg-error {
-  padding: 0 24px 22px;
+  padding: 0 22px 20px;
   font-size: 14px;
   color: var(--coral);
 }

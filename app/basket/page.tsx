@@ -61,10 +61,7 @@ export default function BasketPage() {
               {lines.map((line, i) => (
                 <div key={line.id} className={`cl-line cl-a${(i % 4) + 1}`}>
                   <figure className="cl-line-fig">
-                    {line.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={line.image} alt="" height={60} />
-                    ) : null}
+                    {line.image ? <img src={line.image} alt="" height={60} /> : null}
                   </figure>
                   <div>
                     <b>{line.name}</b>
