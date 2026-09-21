@@ -167,21 +167,9 @@ img { max-width: 100%; }
 
 .cl-brand { display: flex; align-items: center; gap: 8px; font: 400 20px/1 var(--display); }
 
-.cl-strip nav { display: flex; gap: 22px; font: 700 14px/1 var(--body); }
-.cl-strip nav a:hover { color: var(--lime); }
 
-.cl-strip-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+/* .cl-strip-right removed: the header is a flat row now, matching the main site. */
 
-.cl-store-link {
-  padding: 11px 14px;
-  background: rgba(198, 255, 61, 0.12);
-  color: var(--lime);
-  font: 700 13px/1 var(--body);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  clip-path: var(--notch);
-}
-.cl-store-link:hover { background: var(--lime); color: var(--ink); }
 
 .cl-ign {
   display: flex;
@@ -196,13 +184,12 @@ img { max-width: 100%; }
 .cl-basket-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
+  gap: 8px;
+  padding: 11px 14px;
   border: 0;
   background: var(--text);
   color: var(--ink);
-  font: 700 13px/1 var(--body);
-  letter-spacing: 0.5px;
+  font: 400 13px/1 var(--display);
   text-transform: uppercase;
   cursor: pointer;
   clip-path: var(--notch);
@@ -211,12 +198,12 @@ img { max-width: 100%; }
 .cl-basket-btn i {
   display: grid;
   place-items: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
   background: var(--coral);
   color: var(--ink);
-  font: 700 12px/1 var(--body);
+  font: 700 11px/1 var(--body);
   font-style: normal;
 }
 
@@ -803,7 +790,6 @@ img { max-width: 100%; }
   .cl-board { grid-template-columns: 1fr 1fr; }
   .cl-basket { grid-template-columns: 1fr; }
   .cl-summary { position: static; }
-  .cl-strip nav { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -818,4 +804,180 @@ img { max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ==========================================================================
+   Shared header
+   A port of ../caelum-web-fable/app/(site)/site.module.css so moving between
+   caelumsmp.net and the store reads as one site, not two. Values here are
+   copied deliberately — keep them identical if the main site's header changes.
+   ========================================================================== */
+
+.cl-nav {
+  display: flex;
+  gap: 2px;
+  margin-left: 18px;
+}
+.cl-nav a {
+  padding: 8px 10px;
+  font: 700 14px/1 var(--body);
+  color: #dfe6ff;
+}
+.cl-nav a:hover,
+.cl-nav a[aria-current="page"] {
+  color: var(--lime);
+  box-shadow: inset 0 -3px 0 var(--lime);
+}
+
+.cl-pills {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.cl-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 4px 4px 11px;
+  background: rgba(4, 19, 28, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  font: 700 13px/1 var(--body);
+  white-space: nowrap;
+}
+.cl-pill b {
+  font: 400 13px/1 var(--display);
+  color: var(--lime);
+}
+.cl-pill-discord b { color: #9aa4ff; }
+.cl-pill-label { color: var(--dim); }
+
+.cl-pill-btn {
+  padding: 7px 9px;
+  border: 0;
+  background: var(--lime);
+  color: #04131c;
+  font: 700 11px/1 var(--body);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.cl-pill-discord .cl-pill-btn { background: #5865f2; color: #fff; }
+.cl-pill-btn:hover { background: #fff; color: #04131c; }
+
+.cl-dot {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-left: 6px;
+  background: var(--lime);
+  animation: cl-blink 1.4s steps(2) infinite;
+  vertical-align: middle;
+}
+.cl-dot[data-off] { background: var(--dim); animation: none; }
+@keyframes cl-blink { 50% { opacity: 0.2; } }
+
+/* The coral chip. On the main site it links here; on the store it's the
+   current page, so it links back and loses its hover lift. */
+.cl-store-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: var(--coral);
+  color: #04131c !important;
+  font: 400 13px/1 var(--display);
+  text-transform: uppercase;
+  clip-path: var(--notch);
+}
+.cl-store-chip:hover { background: #fff; }
+
+/* ---------- full-screen menu, ported from aurora.module.css ---------- */
+.cl-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border: 0;
+  background: var(--text);
+  color: #04131c;
+  font: 400 13px/1 var(--display);
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: var(--notch);
+}
+.cl-menu-btn:hover { background: var(--lime); }
+
+.cl-burger {
+  width: 16px;
+  height: 12px;
+  background: linear-gradient(#04131c 0 3px, transparent 3px 6px, #04131c 6px 9px, transparent 9px 100%);
+  border-bottom: 3px solid #04131c;
+  box-sizing: content-box;
+}
+
+.cl-menu {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 20px clamp(16px, 4vw, 48px) 32px;
+  border: 0;
+  background: linear-gradient(135deg, #0b3b4a, #1a2a7a 45%, #5b2bd6 80%, #a12bd6);
+  color: var(--text);
+  overflow-y: auto;
+}
+.cl-menu[open] {
+  display: flex;
+  flex-direction: column;
+  animation: cl-menu-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes cl-menu-in {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+.cl-menu > .cl-menu-btn { align-self: flex-end; }
+.cl-menu ol { margin: auto 0; padding: 24px 0; }
+.cl-menu ol a {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 4px 0;
+  font: 400 clamp(28px, 6.5vw, 76px) / 1.1 var(--display);
+  text-transform: uppercase;
+  transition: color 0.12s, padding 0.15s;
+}
+.cl-menu ol span { font: 700 15px/1 var(--body); color: var(--lime); }
+.cl-menu ol a:hover,
+.cl-menu ol a:focus-visible { color: var(--lime); padding-left: 20px; }
+
+.cl-menu-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cl-menu-foot ul { display: flex; flex-wrap: wrap; gap: 8px 22px; font-weight: 700; }
+.cl-menu-foot a:hover { color: var(--lime); }
+
+/* Same breakpoints as the main site, so the header collapses identically. */
+@media (min-width: 1241px) {
+  .cl-strip > .cl-menu-btn { display: none; }
+}
+@media (max-width: 1240px) {
+  .cl-nav { display: none; }
+}
+@media (max-width: 760px) {
+  .cl-pill-label,
+  .cl-store-chip svg { display: none; }
+  .cl-pills { gap: 4px; }
+  .cl-pill { gap: 5px; padding-left: 7px; }
+}
+@media (max-width: 560px) {
+  .cl-store-chip { display: none; }
+  .cl-pill-discord .cl-pill-btn { display: none; }
+  .cl-pill { padding-right: 7px; }
+  .cl-pills .cl-pill:first-child .cl-pill-btn { display: none; }
 }
