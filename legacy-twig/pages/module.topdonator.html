@@ -1,0 +1,22 @@
+{#
+  module.topdonator.html — top customer.
+  module.header, module.donor, module.skin, module.ign,
+  module.displayAmount, module.total, module.period.
+#}
+<section class="cl-module cl-a2">
+  <h2>{{ module.header }}</h2>
+
+  {% if module.donor %}
+    <div class="cl-donor">
+      <img src="{{ module.skin }}" alt="" loading="lazy" />
+      <span>
+        <b>{{ module.ign }}</b>
+        {% if module.displayAmount %}
+          <small>{{ module.total }} &middot; {{ module.period }}</small>
+        {% endif %}
+      </span>
+    </div>
+  {% else %}
+    <p style="font-size: 15px; color: var(--dim)">{{ __('Nobody yet — this spot is open.') }}</p>
+  {% endif %}
+</section>

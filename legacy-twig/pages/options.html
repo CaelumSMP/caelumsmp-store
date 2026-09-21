@@ -1,0 +1,70 @@
+{#
+  options.html — shown when a package needs input before it can go in the basket.
+  Root: options.package { name, chooseServer, customPrice, category, price }
+        options.variables [ { id, type, description, value, options[], discord_tag } ]
+        variable option: { default, name, price }
+
+  FIELD CHECK: Tebex documents the variable `id` but not the field names for the
+  custom-price and server inputs. Those two are marked below — copy the real names
+  off the stock Exo template if a custom-price or choose-server package misbehaves.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ options.package.name }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-section cl-wrap">
+  <h2 class="cl-head">{{ __('Configure') }} <span>{{ options.package.category }}</span></h2>
+
+  <div class="cl-neon cl-a4" style="max-width: 640px">
+    <h3 style="font-size: clamp(22px, 3vw, 34px); padding: 0; margin-bottom: 8px">
+      {{ options.package.name }}
+    </h3>
+    <p class="cl-price" style="padding: 0; margin-bottom: 26px">
+      {{ options.package.price }} {{ store.currency }}
+    </p>
+
+    <form class="cl-form" method="post">
+      {% if options.package.customPrice %}
+        <div class="cl-field">
+          <label for="cl-custom-price">{{ __('Amount') }}</label>
+          {# FIELD CHECK: field name assumed. #}
+          <input id="cl-custom-price" type="number" name="price" step="0.01" min="1"
+                 value="{{ options.package.price }}" required />
+          <small>{{ __('Pay what you like — anything above the minimum helps.') }}</small>
+        </div>
+      {% endif %}
+
+      {% for variable in options.variables %}
+        <div class="cl-field">
+          <label for="cl-v-{{ variable.id }}">{{ variable.description }}</label>
+
+          {% if variable.type == 'dropdown' %}
+            <select id="cl-v-{{ variable.id }}" name="{{ variable.id }}">
+              {% for option in variable.options %}
+                <option value="{{ option.name }}" {{ option.default ? 'selected' : '' }}>
+                  {{ option.name }}{% if option.price and option.price != '0' %} (+{{ option.price }} {{ store.currency }}){% endif %}
+                </option>
+              {% endfor %}
+            </select>
+
+          {% elseif variable.type == 'discord_id' %}
+            <input id="cl-v-{{ variable.id }}" type="text" name="{{ variable.id }}"
+                   value="{{ variable.discord_tag|default(variable.value) }}"
+                   placeholder="{{ __('Your Discord username') }}" required />
+            <small>{{ __('So we can assign your role.') }}</small>
+
+          {% else %}
+            <input id="cl-v-{{ variable.id }}" type="text" name="{{ variable.id }}"
+                   value="{{ variable.value }}" />
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <button class="cl-btn" type="submit">{{ __('Add to basket') }}</button>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{#
+  checkout.html — the basket. Payment itself is entirely Tebex.js: we fetch an
+  ident from /checkout/ident and hand it to the modal, so no card data ever
+  touches this template.
+
+  ROUTE CHECK: the remove-line form below shares the caveat documented at the top
+  of add-to-basket.twig. Confirm it against the stock Exo template.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ __('Basket') }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-section cl-wrap">
+  <h2 class="cl-head">{{ __('Your basket') }} <span>{{ basket.packages|length }}</span></h2>
+
+  {% if basket.packages|length == 0 %}
+
+    <div class="cl-neon cl-a3 cl-empty">
+      <p>{{ __('Nothing in here yet.') }}</p>
+      <a class="cl-btn" href="/">{{ __('Browse the store') }}</a>
+    </div>
+
+  {% else %}
+
+    <div class="cl-basket">
+      <div class="cl-lines">
+        {% for package in basket.packages %}
+          <div class="cl-line cl-a{{ loop.index0 % 4 + 1 }}">
+            <figure class="cl-line-fig">
+              {% if package.image.uploaded %}<img src="{{ package.image.url }}" alt="" height="60" />{% endif %}
+            </figure>
+            <div>
+              <b>{{ package.name }}</b>
+              {% if package.quantity > 1 %}
+                <small>{{ __('Quantity') }}: &times;{{ package.quantity }}</small>
+              {% endif %}
+            </div>
+            <span class="cl-line-price">{{ package.price }} {{ basket.currency }}</span>
+            <form method="post" action="/checkout/packages/remove/{{ package.id }}">
+              <button class="cl-line-rm" type="submit"
+                      aria-label="{{ __('Remove') }} {{ package.name }}">&times;</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+
+      <aside class="cl-summary cl-neon cl-a1">
+        <dl>
+          {% if basket.coupons|length %}
+            <div>
+              <dt>{{ __('Coupons') }}</dt>
+              <dd>{{ basket.coupons|length }} {{ __('applied') }}</dd>
+            </div>
+          {% endif %}
+          <div class="cl-total">
+            <dt>{{ __('Total') }}</dt>
+            <dd>{{ basket.price }} {{ basket.currency }}</dd>
+          </div>
+        </dl>
+
+        {% if basket.ign or store.noLogin %}
+          <button class="cl-btn" type="button" id="cl-pay">{{ __('Checkout') }}</button>
+        {% else %}
+          <a class="cl-btn" href="/login">{{ __('Log in to check out') }}</a>
+        {% endif %}
+
+        <p style="margin-top: 16px; font-size: 13px; color: var(--dim)">
+          {{ __('Payment is handled by Tebex. Perks are delivered in-game within a minute.') }}
+        </p>
+      </aside>
+    </div>
+
+    <script>
+      document.getElementById("cl-pay")?.addEventListener("click", function () {
+        var btn = this;
+        btn.disabled = true;
+        fetch("/checkout/ident", { headers: { Accept: "application/json" } })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (!data.ident) throw new Error("no ident");
+            Tebex.checkout.init({
+              ident: data.ident,
+              theme: "dark",
+              colors: [
+                { name: "primary", color: "#c6ff3d" },
+                { name: "secondary", color: "#4de3ff" }
+              ]
+            });
+            Tebex.checkout.launch();
+          })
+          .catch(function () {
+            btn.textContent = "{{ __('Checkout unavailable — try again') }}";
+          })
+          .finally(function () { btn.disabled = false; });
+      });
+    </script>
+
+  {% endif %}
+</section>
+
+{% endblock %}

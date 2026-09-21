@@ -1,0 +1,44 @@
+{#
+  category.html — one category's packages.
+  Root object: id, name, displayType ('grid'|'list'), description, packages, slug.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
+
+<div class="cl-rail cl-a1">
+  <a href="/">{{ __('Everything') }}</a>
+  {% for category in store.categories %}
+    <a href="/category/{{ category.slug }}" {{ category.slug == slug ? 'aria-current="true"' : '' }}>
+      {{ category.name }} <em>{{ category.packages|length }}</em>
+    </a>
+  {% endfor %}
+</div>
+
+<section class="cl-section cl-wrap" data-cat="{{ slug }}">
+  <h2 class="cl-head">
+    {{ name }}
+    <span>{{ packages|length }}</span>
+  </h2>
+
+  {% if description %}
+    <div class="cl-lede" style="margin: -24px 0 32px">{{ description|raw }}</div>
+  {% endif %}
+
+  <button type="button" class="cl-btn cl-btn-ghost cl-a3" data-compare-toggle aria-pressed="false" hidden
+          style="margin-bottom: 26px">{{ __('Compare tiers') }}</button>
+
+  <div class="cl-grid{{ displayType == 'list' ? ' cl-list' : '' }}">
+    {% for package in packages %}
+      {% include "package-card.twig" with { accent: loop.index0 % 4 + 1 } %}
+    {% else %}
+      <p class="cl-empty">{{ __('Nothing in this category yet.') }}</p>
+    {% endfor %}
+  </div>
+
+  <div data-compare></div>
+</section>
+
+{% endblock %}

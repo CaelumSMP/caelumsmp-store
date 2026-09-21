@@ -1,0 +1,34 @@
+{#
+  module.communitygoal.html — community goal.
+  module.header, module.communitygoal{image, repeatable, times_achieved, description},
+  module.bar.style, module.displayAmount, module.total, module.target, module.percentage.
+#}
+<section class="cl-module cl-a4">
+  <h2>{{ module.header }}</h2>
+
+  {% if module.communitygoal.image %}
+    <img src="{{ module.communitygoal.image }}" alt="" loading="lazy"
+         style="width: 100%; margin-bottom: 12px; clip-path: var(--notch)" />
+  {% endif %}
+
+  {% if module.communitygoal.description %}
+    <p style="margin-bottom: 12px; font-size: 15px; color: var(--dim)">
+      {{ module.communitygoal.description }}
+    </p>
+  {% endif %}
+
+  <div class="cl-goal-bar">
+    <div class="cl-goal-fill" style="width: {{ module.percentage > 100 ? 100 : module.percentage }}%"></div>
+  </div>
+
+  <p class="cl-goal-nums">
+    <b>{{ module.percentage }}%</b>
+    {% if module.displayAmount %}<span>{{ module.total }} / {{ module.target }}</span>{% endif %}
+  </p>
+
+  {% if module.communitygoal.repeatable and module.communitygoal.times_achieved > 0 %}
+    <p style="margin-top: 10px; font-size: 13px; color: var(--dim)">
+      {{ __('Reached') }} {{ module.communitygoal.times_achieved }}&times; {{ __('so far') }}
+    </p>
+  {% endif %}
+</section>

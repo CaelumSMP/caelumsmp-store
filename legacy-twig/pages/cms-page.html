@@ -1,0 +1,23 @@
+{#
+  cms/page.html — custom pages created in the panel (rules, refunds, terms...).
+  Root object: id, category, title, metaData.content.
+
+  Upload this one as `cms/page.html`, not `cms-page.html`.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-section cl-wrap">
+  <h2 class="cl-head">{{ title }}{% if category %}<span>{{ category }}</span>{% endif %}</h2>
+
+  <div class="cl-neon cl-a3" style="max-width: 860px">
+    <div class="cl-pkg-desc" style="padding: 0; font-size: 17px; color: var(--soft)">
+      {{ metaData.content|raw }}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

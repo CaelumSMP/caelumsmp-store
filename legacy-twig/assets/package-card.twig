@@ -1,0 +1,51 @@
+{#
+  package-card.twig — included with `package` and `accent` (1-4) in context.
+  Shared by index.html and category.html so a tile is defined once.
+
+  The data-* attributes feed store.js: `data-pkg` names the column in the
+  comparison table, `data-price` drives the live quantity total.
+#}
+<article class="cl-pkg cl-neon cl-a{{ accent|default(1) }}"
+         data-pkg="{{ package.name }}"
+         data-price="{{ package.price }}"
+         data-price-label="{{ package.price }} {{ store.currency }}">
+
+  {# Ribbons are named in the panel, so merchandising a different tier next month
+     is a settings change, not a code change. #}
+  {% set pkgKey = package.name|lower|replace({' ': ''}) %}
+  {% if pkgKey == config('ribbon-best-value')|default('')|lower|replace({' ': ''}) %}
+    <span class="cl-ribbon cl-a1">{{ __('Best value') }}</span>
+  {% elseif pkgKey in config('ribbon-popular')|default('')|lower|replace({' ': ''})|split(',') %}
+    <span class="cl-ribbon cl-a2">{{ __('Most popular') }}</span>
+  {% endif %}
+
+  <div class="cl-pkg-top">
+    {% if package.discount.applied %}
+      <span class="cl-badge">&minus;{{ package.discount.percentage }}% {{ __('off') }}</span>
+    {% else %}
+      <span></span>
+    {% endif %}
+    {% if package.has_options %}
+      <span class="cl-badge cl-a3">{{ __('Configurable') }}</span>
+    {% endif %}
+  </div>
+
+  {% if package.image.uploaded %}
+    <figure class="cl-pkg-fig">
+      <img src="{{ package.image.url }}" alt="" loading="lazy" />
+    </figure>
+  {% endif %}
+
+  <h3><a href="/package/{{ package.identifier }}">{{ package.name }}</a></h3>
+
+  {# Descriptions are authored in the Tebex panel. Write the perks as a bullet
+     list — the comparison table is built from those <li> items. #}
+  <div class="cl-pkg-desc">{{ package.description|raw }}</div>
+
+  <p class="cl-price">
+    {% if package.discount.applied %}<s>{{ package.discount.original }}</s>{% endif %}
+    <span><span data-total>{{ package.price }}</span> {{ store.currency }}</span>
+  </p>
+
+  {% include "add-to-basket.twig" %}
+</article>

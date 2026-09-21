@@ -1,0 +1,53 @@
+{#
+  add-to-basket.twig — included with `package` (and optionally `accent`) in context.
+
+  ====================================================================
+  ROUTE CHECK — the one unverified thing in this whole template.
+  Tebex does not document the webstore's basket routes, so the action
+  below is the classic Buycraft/Tebex webstore route. Before you rely on
+  it, open the stock **Exo** template in the panel, find its add-to-basket
+  form, and copy its `action` here. It is the only place the URL appears.
+  ====================================================================
+
+  Packages with options can't be added in one shot, so those link to the
+  package page instead of posting — that keeps us out of the undocumented
+  options route entirely.
+#}
+{# Which categories are bought in multiples is a panel setting, not a guess at an
+   undocumented package field. Spaces are stripped both sides so "Crate Keys" and
+   "cratekeys" both match. Basic Twig filters only — no arrow functions, since the
+   Twig version Tebex runs isn't documented. #}
+{% set qtyList = config('qty-categories')|default('')|lower|replace({' ': ''})|split(',') %}
+{% set allowQty = package.category|default('')|lower|replace({' ': ''}) in qtyList %}
+
+{% if not package.purchasable %}
+  <div class="cl-pkg-foot">
+    <button class="cl-btn" type="button" disabled>{{ __('Unavailable') }}</button>
+  </div>
+
+{% elseif package.has_options %}
+  <div class="cl-pkg-foot">
+    <a class="cl-btn" href="/package/{{ package.identifier }}">{{ __('Choose options') }}</a>
+  </div>
+
+{% else %}
+  {% if allowQty %}
+    <div class="cl-bulk">
+      {% for n in [5, 10, 25] %}
+        <button type="button" data-qty="{{ n }}" aria-pressed="false">&times;{{ n }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form class="cl-pkg-foot" method="post" action="/checkout/packages/add/{{ package.id }}/single">
+    {% if allowQty %}
+      {# Ceiling is a stack. package.quantity is undocumented, so it isn't trusted as a max. #}
+      <div class="cl-qty">
+        <button type="button" data-step="-1" aria-label="{{ __('Decrease quantity') }}">&minus;</button>
+        <input type="number" name="quantity" value="1" min="1" max="64" aria-label="{{ __('Quantity') }}" />
+        <button type="button" data-step="1" aria-label="{{ __('Increase quantity') }}">+</button>
+      </div>
+    {% endif %}
+    <button class="cl-btn" type="submit">{{ __('Add to basket') }}</button>
+  </form>
+{% endif %}

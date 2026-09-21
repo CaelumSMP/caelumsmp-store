@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CaelumSMP store — preview &amp; self-check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Space+Grotesk:wght@400;500;700&display=swap" />
+<link rel="stylesheet" href="assets/theme.css" />
+<style>
+  /* Only for this page — the check results panel. */
+  #checks { position: fixed; left: 12px; bottom: 12px; z-index: 90; max-width: 340px;
+            padding: 14px 16px; background: #0b2030; border-left: 6px solid #c6ff3d;
+            font: 700 13px/1.5 "Space Grotesk", sans-serif; }
+  #checks li::before { content: "✓ "; color: #c6ff3d; }
+  #checks li.bad { color: #ff5a5f; }
+  #checks li.bad::before { content: "✕ "; color: #ff5a5f; }
+</style>
+</head>
+<body>
+
+<!-- Fixture markup: what the Twig in pages/ + assets/ renders to. Keep in sync by eye;
+     this page exists to check theme.css and store.js, not the Twig. -->
+
+<header class="cl-strip">
+  <a class="cl-brand" href="#">
+    <svg viewBox="0 0 100 100" width="30" height="30" aria-hidden="true">
+      <polygon points="50,4 96,27 50,50 4,27" fill="#c6ff3d" />
+      <polygon points="4,27 50,50 50,97 4,74" fill="#8fc41f" />
+      <polygon points="50,50 96,27 96,74 50,97" fill="#6a9612" />
+    </svg>
+    CAELUM
+  </a>
+  <nav aria-label="Categories"><a href="#">Ranks</a><a href="#">Crate Keys</a></nav>
+  <div class="cl-strip-right">
+    <span class="cl-ign"><b>Notch</b></span>
+    <a class="cl-basket-btn" href="#">Basket <i>2</i></a>
+  </div>
+</header>
+
+<section class="cl-hero">
+  <svg viewBox="0 0 100 100" width="64" height="64" class="cl-floater" style="--d: 34; left:4%;top:16%" aria-hidden="true">
+    <polygon points="50,4 96,27 50,50 4,27" fill="#c6ff3d" /><polygon points="4,27 50,50 50,97 4,74" fill="#8fc41f" /><polygon points="50,50 96,27 96,74 50,97" fill="#6a9612" />
+  </svg>
+  <svg viewBox="0 0 100 100" width="52" height="52" class="cl-floater" style="--d: 48; right:8%;top:10%" aria-hidden="true">
+    <polygon points="50,4 96,27 50,50 4,27" fill="#4de3ff" /><polygon points="4,27 50,50 50,97 4,74" fill="#22a9c9" /><polygon points="50,50 96,27 96,74 50,97" fill="#167f99" />
+  </svg>
+  <div class="cl-hero-in">
+    <span class="cl-kicker">Support the server</span>
+    <h1>Gear <em>up</em>.</h1>
+    <div class="cl-lede">Every purchase keeps CaelumSMP online, ad-free and running for everyone. Perks land in-game within a minute.</div>
+  </div>
+</section>
+
+<dl class="cl-board">
+  <div class="cl-a1" style="--i: 0"><dt><i></i>Server IP</dt><dd><button type="button" data-copy="play.caelumsmp.com">play.caelumsmp.com</button></dd></div>
+  <div class="cl-a2" style="--i: 1"><dt>Delivery</dt><dd>Under a minute</dd></div>
+  <div class="cl-a3" style="--i: 2"><dt>Currency</dt><dd>EUR</dd></div>
+  <div class="cl-a4" style="--i: 3"><dt>Need help?</dt><dd><a href="#">Ask on Discord</a></dd></div>
+</dl>
+
+<!-- Most popular row: real packages above the category list. -->
+<section class="cl-popular cl-wrap">
+  <h2 class="cl-head">Most popular</h2>
+  <div class="cl-popular-grid">
+    <article class="cl-pkg cl-neon cl-a2">
+      <span class="cl-ribbon cl-a2">Most popular</span>
+      <div class="cl-pkg-top"><span class="cl-badge">&minus;20% off</span></div>
+      <h3><a href="#">Zenith</a></h3>
+      <div class="cl-pkg-desc"><ul><li>Coloured name tag</li><li>/fly in the hub</li></ul></div>
+      <p class="cl-price"><s>12.49</s> <span><span>9.99</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="button">Add to basket</button></div>
+    </article>
+    <article class="cl-pkg cl-neon cl-a1">
+      <span class="cl-ribbon cl-a1">Best value</span>
+      <div class="cl-pkg-top"><span></span></div>
+      <h3><a href="#">Celestial</a></h3>
+      <div class="cl-pkg-desc"><ul><li>Everything in Zenith</li><li>Particle trail</li></ul></div>
+      <p class="cl-price"><span><span>19.99</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="button">Add to basket</button></div>
+    </article>
+    <article class="cl-pkg cl-neon cl-a4">
+      <div class="cl-pkg-top"><span></span></div>
+      <h3><a href="#">Vault Key</a></h3>
+      <div class="cl-pkg-desc"><p>One roll on the Vault crate.</p></div>
+      <p class="cl-price"><span><span>1.50</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="button">Add to basket</button></div>
+    </article>
+  </div>
+</section>
+
+<div class="cl-rail cl-a1" data-rail>
+  <button type="button" data-filter="all" aria-pressed="true">Everything</button>
+  <button type="button" data-filter="ranks" aria-pressed="false">Ranks <em>3</em></button>
+  <button type="button" data-filter="keys" aria-pressed="false">Crate Keys <em>1</em></button>
+</div>
+
+<div class="cl-main">
+  <div>
+<!-- Ranks: three packages with bullet perks, so the comparison table builds. -->
+<section class="cl-section cl-wrap" id="c-ranks" data-cat="ranks">
+  <h2 class="cl-head">Ranks <span>3</span></h2>
+  <button type="button" class="cl-btn cl-btn-ghost cl-a3" data-compare-toggle aria-pressed="false" hidden style="margin-bottom: 26px">Compare tiers</button>
+
+  <div class="cl-grid">
+    <article class="cl-pkg cl-neon cl-a1" data-pkg="Aurora" data-price="4.99" data-price-label="4.99 EUR">
+      <div class="cl-pkg-top"><span></span></div>
+      <h3><a href="#">Aurora</a></h3>
+      <div class="cl-pkg-desc"><ul><li>Coloured name tag</li><li>3 home slots</li></ul></div>
+      <p class="cl-price"><span><span data-total>4.99</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="submit">Add to basket</button></div>
+    </article>
+
+    <article class="cl-pkg cl-neon cl-a2" data-pkg="Zenith" data-price="9.99" data-price-label="9.99 EUR">
+      <span class="cl-ribbon cl-a2">Most popular</span>
+      <div class="cl-pkg-top"><span class="cl-badge">&minus;20% off</span></div>
+      <h3><a href="#">Zenith</a></h3>
+      <div class="cl-pkg-desc"><ul><li>Coloured name tag</li><li>3 home slots</li><li>/fly in the hub</li></ul></div>
+      <p class="cl-price"><s>12.49</s> <span><span data-total>9.99</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="submit">Add to basket</button></div>
+    </article>
+
+    <article class="cl-pkg cl-neon cl-a3" data-pkg="Celestial" data-price="19.99" data-price-label="19.99 EUR">
+      <span class="cl-ribbon cl-a1">Best value</span>
+      <div class="cl-pkg-top"><span></span></div>
+      <h3><a href="#">Celestial</a></h3>
+      <div class="cl-pkg-desc"><ul><li>Coloured name tag</li><li>3 home slots</li><li>/fly in the hub</li><li>Particle trail</li></ul></div>
+      <p class="cl-price"><span><span data-total>19.99</span> EUR</span></p>
+      <div class="cl-pkg-foot"><button class="cl-btn" type="submit">Add to basket</button></div>
+    </article>
+  </div>
+
+  <div data-compare></div>
+</section>
+
+<!-- Crate keys: quantity stepper + bulk chips. -->
+<section class="cl-section cl-wrap" id="c-keys" data-cat="keys">
+  <h2 class="cl-head">Crate Keys <span>1</span></h2>
+  <div class="cl-grid">
+    <article class="cl-pkg cl-neon cl-a4" data-pkg="Vault Key" data-price="1.50" data-price-label="1.50 EUR">
+      <div class="cl-pkg-top"><span></span></div>
+      <h3><a href="#">Vault Key</a></h3>
+      <div class="cl-pkg-desc"><p>One roll on the Vault crate.</p></div>
+      <p class="cl-price"><span><span data-total>1.50</span> EUR</span></p>
+      <div class="cl-bulk">
+        <button type="button" data-qty="5" aria-pressed="false">&times;5</button>
+        <button type="button" data-qty="10" aria-pressed="false">&times;10</button>
+        <button type="button" data-qty="25" aria-pressed="false">&times;25</button>
+      </div>
+      <form class="cl-pkg-foot" method="post" action="#">
+        <div class="cl-qty">
+          <button type="button" data-step="-1" aria-label="Decrease quantity">&minus;</button>
+          <input type="number" name="quantity" value="1" min="1" max="64" aria-label="Quantity" />
+          <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+        </div>
+        <button class="cl-btn" type="submit">Add to basket</button>
+      </form>
+    </article>
+  </div>
+  <div data-compare></div>
+</section>
+
+  </div>
+
+  <aside class="cl-side">
+    <section class="cl-module cl-a1">
+      <h2>Server status</h2>
+      <p class="cl-status"><i></i><b>148</b><small>of 500 playing now</small></p>
+      <p style="margin-top:10px"><button type="button" class="cl-btn" data-copy="play.caelumsmp.com" style="width:100%;padding:12px 14px;font-size:13px">play.caelumsmp.com</button></p>
+    </section>
+
+    <section class="cl-module cl-a1">
+      <h2>Recent purchases<span class="cl-live"><i></i>Live</span></h2>
+      <div class="cl-heads">
+        <img src="https://mc-heads.net/avatar/Notch/34" alt="" /><img src="https://mc-heads.net/avatar/jeb_/34" alt="" /><img src="https://mc-heads.net/avatar/Dinnerbone/34" alt="" /><img src="https://mc-heads.net/avatar/Grumm/34" alt="" /><img src="https://mc-heads.net/avatar/Steve/34" alt="" /><img src="https://mc-heads.net/avatar/Alex/34" alt="" /><img src="https://mc-heads.net/avatar/Herobrine/34" alt="" /><img src="https://mc-heads.net/avatar/Technoblade/34" alt="" />
+      </div>
+    </section>
+
+    <section class="cl-module cl-a2">
+      <h2>Top customer</h2>
+      <div class="cl-donor">
+        <img src="https://mc-heads.net/avatar/Notch/48" alt="" />
+        <span><b>Notch</b><small>149.95 EUR &middot; monthly</small></span>
+      </div>
+    </section>
+
+    <section class="cl-module cl-a3">
+      <h2>Monthly goal</h2>
+      <div class="cl-goal-bar"><div class="cl-goal-fill" style="width:68%"></div></div>
+      <p class="cl-goal-nums"><b>68%</b><span>204 / 300 EUR</span></p>
+    </section>
+  </aside>
+</div>
+
+<div class="cl-trust">
+  <div class="cl-a1"><h3>Instant delivery</h3><p>Perks are applied automatically, usually within a minute. Be online or just log in afterwards.</p></div>
+  <div class="cl-a2"><h3>Refunds</h3><p>All payments are final. Chargebacks result in a permanent ban across the network.</p></div>
+  <div class="cl-a3"><h3>Need a hand?</h3><p>Didn't get your purchase? Open a ticket and we'll sort it. <a href="#">Join the Discord</a></p></div>
+</div>
+
+<footer class="cl-footer">
+  <p class="cl-bye">See you<br />in-game.</p>
+  <div class="cl-foot-row"><ul><li><a href="#">Discord</a></li></ul><ul><li><a href="#">Ranks</a></li><li><a href="#">Basket</a></li></ul></div>
+  <small>&copy; 2026 CaelumSMP. Not affiliated with Mojang or Microsoft.</small>
+</footer>
+
+<ul id="checks"></ul>
+
+<script src="assets/store.js"></script>
+<script>
+// Self-check: fails loudly on this page if store.js stops doing its job.
+(function () {
+  var out = document.getElementById("checks");
+  var bad = 0;
+
+  function check(label, fn) {
+    var ok = false, why = "";
+    try { ok = fn() === true; } catch (e) { why = " (" + e.message + ")"; }
+    if (!ok) bad++;
+    out.insertAdjacentHTML("beforeend",
+      '<li class="' + (ok ? "" : "bad") + '">' + label + why + "</li>");
+  }
+
+  var ranks = document.getElementById("c-ranks");
+
+  check("compare table built", function () {
+    return !!ranks.querySelector(".cl-compare");
+  });
+
+  check("4 feature rows, deduped", function () {
+    // name tag / home slots / fly / particle trail — shared bullets collapse to one row.
+    return ranks.querySelectorAll(".cl-compare tbody tr").length === 4;
+  });
+
+  check("ticks follow the bullets", function () {
+    var rows = ranks.querySelectorAll(".cl-compare tbody tr");
+    // "/fly in the hub" is row 3: absent on Aurora, present on the other two.
+    var cells = rows[2].querySelectorAll("td span");
+    return cells[0].className === "cl-no" && cells[1].className === "cl-yes" && cells[2].className === "cl-yes";
+  });
+
+  check("compare toggle revealed", function () {
+    return ranks.querySelector("[data-compare-toggle]").hidden === false;
+  });
+
+  check("no table for a lone package", function () {
+    return !document.getElementById("c-keys").querySelector(".cl-compare");
+  });
+
+  // Checks computed display, not the .hidden property: an author `display: grid`
+  // silently beats the UA's [hidden] rule, which is exactly how this broke once.
+  check("toggle swaps grid for table", function () {
+    var grid = ranks.querySelector(".cl-grid");
+    var wrap = ranks.querySelector(".cl-compare-wrap");
+    var vis = function (el) { return getComputedStyle(el).display !== "none"; };
+    if (vis(wrap) || !vis(grid)) return false;          // table starts closed
+    ranks.querySelector("[data-compare-toggle]").click();
+    if (!vis(wrap) || vis(grid)) return false;          // opened: table in, grid out
+    ranks.querySelector("[data-compare-toggle]").click();
+    return !vis(wrap) && vis(grid);                     // closed again
+  });
+
+  var keys = document.getElementById("c-keys");
+  var input = keys.querySelector(".cl-qty input");
+  var total = keys.querySelector("[data-total]");
+
+  check("stepper adds", function () {
+    keys.querySelector('[data-step="1"]').click();
+    return input.value === "2" && total.textContent === "3.00";
+  });
+
+  check("stepper clamps at min", function () {
+    var minus = keys.querySelector('[data-step="-1"]');
+    minus.click(); minus.click(); minus.click();
+    return input.value === "1";
+  });
+
+  check("bulk chip sets quantity", function () {
+    keys.querySelector('[data-qty="10"]').click();
+    return input.value === "10" && total.textContent === "15.00";
+  });
+
+  check("stepper clamps at max", function () {
+    input.value = "9999";
+    input.dispatchEvent(new Event("change"));
+    return input.value === "64";
+  });
+
+  check("rail filters sections", function () {
+    document.querySelector('[data-filter="keys"]').click();
+    return ranks.hidden === true && keys.hidden === false;
+  });
+
+  check("rail 'everything' restores", function () {
+    document.querySelector('[data-filter="all"]').click();
+    return ranks.hidden === false && keys.hidden === false;
+  });
+
+  out.insertAdjacentHTML("afterbegin",
+    "<li style='list-style:none;margin-left:-16px'>" +
+    (bad ? bad + " FAILED" : "all checks passed") + "</li>");
+  out.style.borderLeftColor = bad ? "#ff5a5f" : "#c6ff3d";
+  console.log(bad ? bad + " check(s) failed" : "store.js: all checks passed");
+})();
+</script>
+
+</body>
+</html>

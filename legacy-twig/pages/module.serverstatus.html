@@ -1,0 +1,25 @@
+{#
+  module.serverstatus.html — live player count.
+  module.header, module.online, module.ip, module.port,
+  module.players.online, module.players.max.
+#}
+<section class="cl-module cl-a1">
+  <h2>{{ module.header }}</h2>
+
+  <p class="cl-status">
+    <i {{ module.online ? '' : 'data-off' }}></i>
+    {% if module.online %}
+      <b>{{ module.players.online }}</b>
+      <small>{{ __('of') }} {{ module.players.max }} {{ __('playing now') }}</small>
+    {% else %}
+      <b>{{ __('Offline') }}</b>
+    {% endif %}
+  </p>
+
+  {% if module.ip %}
+    <p style="margin-top: 10px">
+      <button type="button" class="cl-btn" data-copy="{{ module.ip }}"
+              style="width: 100%; padding: 12px 14px; font-size: 13px">{{ module.ip }}</button>
+    </p>
+  {% endif %}
+</section>

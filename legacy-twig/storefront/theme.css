@@ -1,0 +1,313 @@
+/* ==========================================================================
+   CaelumSMP — D4 "Aurora Fest" theme for the Tebex Webstore Builder.
+
+   This goes in the storefront definition's "theme.css" field. The builder's
+   Theme panel doesn't expose that field, so it's written through the save API
+   (see storefront/apply.md) or carried in an uploaded storefront file.
+
+   The builder renders a fixed set of blocks and exposes a --theme-* token
+   system. This file does two jobs:
+     1. repoints those tokens at the Caelum palette
+     2. adds the parts the token system has no concept of — the pixel notch,
+        the aurora gradient, hard shadows and the four-accent cycle
+
+   Design source of truth: ../../caelum-web-fable/DESIGN.md
+   ========================================================================== */
+
+/* Must stay first. The builder's font dropdown only offers 11 faces and neither
+   of ours is among them, so we load them ourselves. */
+@import url("https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Space+Grotesk:wght@400;500;700&display=swap");
+
+/* ---------------------------------------------------------------------------
+   IMPORTANT — how the builder injects this file.
+
+   Tebex scopes custom CSS as `.themed <your selector>`. Verified by probe:
+   a rule written as `*` lands on every descendant, while `:root`, `html`,
+   `body`, `.themed` and `.page` all resolve to selectors that match nothing.
+
+   So the palette is declared on `*`, not `:root`. Do not "tidy" this back to
+   `:root` — every var silently becomes undefined and each declaration that
+   uses one is dropped, which looks like the theme half-working.
+
+   Page background and base text colour can't be set here for the same reason
+   (they live on `.themed` itself) — those come from theme.tokens instead.
+   --------------------------------------------------------------------------- */
+* {
+  /* Caelum palette */
+  --cl-bg: #061722;
+  --cl-card: #0b2030;
+  --cl-lime: #c6ff3d;
+  --cl-coral: #ff5a5f;
+  --cl-cyan: #4de3ff;
+  --cl-violet: #a77bff;
+  --cl-text: #f4f7ff;
+  --cl-dim: #a9b8cf;
+  --cl-ink: #04131c;
+  --cl-soft: #dfe6ff;
+
+  /* The signature corner: a 10px stepped square, never a diagonal. */
+  --cl-notch: polygon(0 10px, 10px 10px, 10px 0, 100% 0, 100% calc(100% - 10px),
+                      calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+
+  --cl-sky: linear-gradient(125deg, #0b3b4a 0%, #142a78 40%, #5b2bd6 75%, #a12bd6 100%);
+
+  /* --- repoint the builder's tokens --- */
+  --theme-color-background: var(--cl-bg);
+  --theme-color-surface: var(--cl-card);
+  --theme-color-primary: var(--cl-lime);
+  --theme-color-secondary: var(--cl-cyan);
+  --theme-color-text: var(--cl-text);
+  --theme-color-text-muted: var(--cl-dim);
+  --theme-color-muted-on-surface: var(--cl-dim);
+  --theme-color-on-primary: var(--cl-ink);
+  --theme-color-on-secondary: var(--cl-ink);
+  --theme-color-on-surface: var(--cl-text);
+  --theme-color-border: rgba(255, 255, 255, 0.1);
+  --theme-color-overlay: rgba(4, 19, 28, 0.72);
+  --theme-color-placeholder: #5d6f84;
+  --theme-color-error: var(--cl-coral);
+
+  --theme-font-family-heading: "Rubik Mono One", system-ui, sans-serif;
+  --theme-font-family-body: "Space Grotesk", system-ui, sans-serif;
+
+  /* No rounded corners anywhere — the notch does this job instead. */
+  --theme-radius-card: 0;
+  --theme-radius-button: 0;
+  --theme-radius-input: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Typography
+   Rubik Mono One carries the brand, headings and card titles. Everything
+   functional — buttons, prices, labels — is Space Grotesk 700, because a heavy
+   display face on every control reads arcade rather than premium.
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4,
+.site-header__logo-text,
+.category-display__title,
+.carousel-media-item__item-title {
+  font-family: var(--theme-font-family-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+h1, .carousel-media-item__item-title {
+  text-shadow: 6px 6px 0 rgba(4, 19, 28, 0.55);
+}
+
+.btn,
+.btn--primary,
+.btn--secondary {
+  font-family: var(--theme-font-family-body);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons — notched, hard-edged, lifting slightly on hover
+   -------------------------------------------------------------------------- */
+.btn {
+  clip-path: var(--cl-notch);
+  border-radius: 0;
+  transition: transform 0.12s, background 0.12s, color 0.12s;
+}
+
+.btn--primary {
+  background: var(--cl-lime);
+  color: var(--cl-ink);
+  border: 0;
+}
+.btn--primary:hover:not(.btn--disabled) {
+  background: #fff;
+  color: var(--cl-ink);
+  transform: translate(-2px, -2px) rotate(-1deg);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--cl-text);
+  box-shadow: inset 0 0 0 3px var(--cl-cyan);
+  border: 0;
+}
+.btn--secondary:hover:not(.btn--disabled) {
+  background: var(--cl-cyan);
+  color: var(--cl-ink);
+}
+
+.btn--icon-only { clip-path: none; }
+
+:focus-visible {
+  outline: 3px solid var(--cl-lime);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   Header — sticky, dark, with the lime keyline
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(6, 23, 34, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.site-header__logo-text {
+  font-size: clamp(18px, 2.2vw, 26px);
+  color: var(--cl-text);
+}
+
+.site-header__links a {
+  font-family: var(--theme-font-family-body);
+  font-weight: 700;
+}
+.site-header__links a:hover { color: var(--cl-lime); }
+
+/* --------------------------------------------------------------------------
+   Carousel — the closest thing the builder has to a hero, so it carries the
+   aurora sky and the drifting curtains.
+   -------------------------------------------------------------------------- */
+.carousel {
+  position: relative;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(198, 255, 61, 0.22), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 20% 100%, rgba(255, 90, 95, 0.2), transparent 70%),
+    var(--cl-sky);
+  overflow: hidden;
+}
+
+.carousel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(100deg,
+    transparent 0 60px, rgba(77, 227, 255, 0.07) 60px 120px,
+    transparent 120px 200px, rgba(198, 255, 61, 0.06) 200px 240px);
+  animation: cl-aurora 16s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes cl-aurora { to { background-position: 480px 0; } }
+
+.carousel__wrapper { position: relative; z-index: 1; }
+
+.carousel-media-item,
+.carousel-package-item {
+  clip-path: var(--cl-notch);
+  border-radius: 0;
+}
+
+.carousel-media-item__item-title { font-size: clamp(26px, 4vw, 52px); }
+
+.carousel-media-item__item-description {
+  font-family: var(--theme-font-family-body);
+  color: var(--cl-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Category list — notched tiles, accents cycling lime → coral → cyan → violet
+   -------------------------------------------------------------------------- */
+.category-list__item {
+  background: var(--cl-card);
+  clip-path: var(--cl-notch);
+  border-top: 6px solid var(--cl-accent, var(--cl-lime));
+  transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.category-list__item:hover { transform: translateY(-6px) rotate(-0.6deg); }
+
+.category-list__entry:nth-child(4n + 1) { --cl-accent: var(--cl-lime); }
+.category-list__entry:nth-child(4n + 2) { --cl-accent: var(--cl-coral); }
+.category-list__entry:nth-child(4n + 3) { --cl-accent: var(--cl-cyan); }
+.category-list__entry:nth-child(4n + 4) { --cl-accent: var(--cl-violet); }
+
+.category-list__name,
+.category-list__label {
+  font-family: var(--theme-font-family-heading);
+  text-transform: uppercase;
+  color: var(--cl-text);
+}
+
+/* --------------------------------------------------------------------------
+   Packages — the builder renders each package into .category-display__grid.
+   Selectors are kept structural (direct children) so they survive whatever
+   inner class names the package card happens to use.
+   -------------------------------------------------------------------------- */
+.category-display__title {
+  font-size: clamp(26px, 3.4vw, 42px);
+  margin-bottom: 26px;
+}
+
+.category-display__grid > * {
+  position: relative;
+  background: var(--cl-card);
+  clip-path: var(--cl-notch);
+  border-radius: 0;
+  /* The 3px accent outline, drawn as an inset ring rather than a border so it
+     follows the notch instead of squaring it off. */
+  box-shadow: inset 0 0 0 3px var(--cl-accent, var(--cl-lime));
+  transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.category-display__grid > *:hover { transform: translateY(-6px) rotate(-0.6deg); }
+
+.category-display__grid > *:nth-child(4n + 1) { --cl-accent: var(--cl-lime); }
+.category-display__grid > *:nth-child(4n + 2) { --cl-accent: var(--cl-coral); }
+.category-display__grid > *:nth-child(4n + 3) { --cl-accent: var(--cl-cyan); }
+.category-display__grid > *:nth-child(4n + 4) { --cl-accent: var(--cl-violet); }
+
+/* Package title and price inside a card. */
+.category-display__grid h3,
+.category-display__grid h4 {
+  color: var(--cl-text);
+  text-shadow: none;
+}
+
+.category-display__empty {
+  color: var(--cl-dim);
+  font-family: var(--theme-font-family-body);
+}
+
+/* --------------------------------------------------------------------------
+   Footer — the aurora sky again, closing the page the way the main site does
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background: var(--cl-sky);
+  border-top: 0;
+}
+
+.site-footer__logo-text {
+  font-family: var(--theme-font-family-heading);
+  text-transform: uppercase;
+}
+
+.site-footer__links a { font-weight: 700; }
+.site-footer__links a:hover { color: var(--cl-lime); }
+
+.site-footer__copyright { color: #d4dcf5; }
+
+/* --------------------------------------------------------------------------
+   Inputs and surfaces
+   -------------------------------------------------------------------------- */
+input, select, textarea {
+  background: var(--cl-card);
+  color: var(--cl-text);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.12);
+}
+input:focus, select:focus, textarea:focus {
+  outline: 0;
+  box-shadow: inset 0 0 0 3px var(--cl-lime);
+}
+
+/* Basket and package pop-ups sit on --surface; keep them notched too. */
+.basket-sidebar-block,
+.basket-login-block {
+  background: var(--cl-card);
+  clip-path: var(--cl-notch);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

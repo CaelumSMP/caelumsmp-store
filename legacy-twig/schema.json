@@ -1,0 +1,124 @@
+{
+  "author": "CaelumSMP",
+  "support_email": "nemanja.rankovic@outlook.com",
+  "config": [
+    {
+      "header": "Server",
+      "options": [
+        {
+          "id": "server-ip",
+          "name": "Server IP",
+          "description": "Shown in the info board under the hero with a click-to-copy button.",
+          "type": "textarea",
+          "default": "play.caelumsmp.com"
+        },
+        {
+          "id": "discord",
+          "name": "Discord invite",
+          "description": "Full invite URL. Used in the info board, the help panel and the footer.",
+          "type": "url",
+          "default": ""
+        },
+        {
+          "id": "site-url",
+          "name": "Main site",
+          "description": "Link back to the main CaelumSMP website from the footer.",
+          "type": "url",
+          "default": ""
+        }
+      ]
+    },
+    {
+      "header": "Hero",
+      "options": [
+        {
+          "id": "hero-kicker",
+          "name": "Kicker",
+          "description": "The small label above the headline.",
+          "type": "textarea",
+          "default": "Support the server"
+        },
+        {
+          "id": "hero-title",
+          "name": "Headline",
+          "description": "The big headline. Wrap a word in <em> to make it lime.",
+          "type": "textarea",
+          "default": "Gear <em>up</em>."
+        },
+        {
+          "id": "hero-lede",
+          "name": "Intro paragraph",
+          "description": "Shown under the headline. Ignored if the store's homepage content (Storefront > Pages) is filled in, which takes priority.",
+          "type": "textarea",
+          "default": "Every purchase keeps CaelumSMP online and ad-free. Perks land in-game within a minute."
+        }
+      ]
+    },
+    {
+      "header": "Merchandising",
+      "options": [
+        {
+          "id": "popular-packages",
+          "name": "Most popular row",
+          "description": "Comma-separated package names shown in a highlighted row above the categories, so a visitor sees something buyable without scrolling. Names must match the packages exactly. Leave empty to hide the row.",
+          "type": "textarea",
+          "default": ""
+        },
+        {
+          "id": "ribbon-best-value",
+          "name": "\"Best value\" ribbon",
+          "description": "One package name. Gets a lime corner ribbon everywhere it appears.",
+          "type": "textarea",
+          "default": ""
+        },
+        {
+          "id": "ribbon-popular",
+          "name": "\"Most popular\" ribbon",
+          "description": "Comma-separated package names. Each gets a coral corner ribbon. A package with the Best value ribbon ignores this one.",
+          "type": "textarea",
+          "default": ""
+        },
+        {
+          "id": "qty-categories",
+          "name": "Quantity categories",
+          "description": "Comma-separated category names whose packages are bought in multiples - crate keys, consumables, currency. Those packages get a quantity stepper and x5 / x10 / x25 shortcuts. Leave empty to turn quantity off everywhere.",
+          "type": "textarea",
+          "default": "Crate Keys"
+        }
+      ]
+    },
+    {
+      "header": "Trust",
+      "options": [
+        {
+          "id": "delivery-time",
+          "name": "Delivery time",
+          "description": "Short phrase for the info board, e.g. \"Under a minute\".",
+          "type": "textarea",
+          "default": "Under a minute"
+        },
+        {
+          "id": "trust-delivery",
+          "name": "Delivery note",
+          "description": "The 'Instant delivery' panel near the bottom of the store front.",
+          "type": "textarea",
+          "default": "Perks are applied automatically, usually within a minute. Be online or just log in afterwards."
+        },
+        {
+          "id": "trust-refund",
+          "name": "Refund policy",
+          "description": "The 'Refunds' panel. Keep it short - the full terms are shown at checkout.",
+          "type": "textarea",
+          "default": "All payments are final. Chargebacks result in a permanent ban across the network."
+        },
+        {
+          "id": "trust-support",
+          "name": "Support note",
+          "description": "The 'Need a hand?' panel. The Discord link is appended automatically if one is set above.",
+          "type": "textarea",
+          "default": "Didn't get your purchase? Open a ticket and we'll sort it."
+        }
+      ]
+    }
+  ]
+}

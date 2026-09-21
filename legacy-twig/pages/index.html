@@ -1,0 +1,160 @@
+{#
+  index.html — the store front.
+
+  Order is deliberate, and follows what the top stores do: a short hero, then the
+  info board, then purchasable packages, and only then the category list. A
+  visitor should see something they can buy without scrolling.
+
+  Root variables: `description` (the homepage content set in the panel).
+  Everything else on this page comes from the template's panel settings, so the
+  copy can be changed without touching code.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ __('Store') }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-hero">
+  {# Four floating blocks: lime, coral, cyan, violet. Fewer than the main site
+     uses, because this hero is half the height. #}
+  {% include "cube.twig" with { size: 52, d: 34, at: 'left:4%;top:18%',     top: '#c6ff3d', left: '#8fc41f', right: '#6a9612' } %}
+  {% include "cube.twig" with { size: 36, d: -22, at: 'left:16%;bottom:14%', top: '#ff5a5f', left: '#c93b40', right: '#9c2b30' } %}
+  {% include "cube.twig" with { size: 44, d: 48, at: 'right:7%;top:12%',    top: '#4de3ff', left: '#22a9c9', right: '#167f99' } %}
+  {% include "cube.twig" with { size: 30, d: -34, at: 'right:22%;bottom:16%', top: '#a77bff', left: '#7448d6', right: '#5631ab' } %}
+
+  <div class="cl-hero-in">
+    <span class="cl-kicker">{{ config('hero-kicker')|default(__('Support the server')) }}</span>
+    <h1>{{ config('hero-title')|default('Gear <em>up</em>.')|raw }}</h1>
+    <div class="cl-lede">
+      {% if description %}
+        {{ description|raw }}
+      {% else %}
+        {{ config('hero-lede')|default(__('Every purchase keeps CaelumSMP online and ad-free. Perks land in-game within a minute.'))|raw }}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<dl class="cl-board">
+  <div class="cl-a1" style="--i: 0">
+    <dt><i></i>{{ __('Server IP') }}</dt>
+    <dd>
+      {% if config('server-ip') %}
+        <button type="button" data-copy="{{ config('server-ip') }}">{{ config('server-ip') }}</button>
+      {% else %}&mdash;{% endif %}
+    </dd>
+  </div>
+  <div class="cl-a2" style="--i: 1">
+    <dt>{{ __('Delivery') }}</dt>
+    <dd>{{ config('delivery-time')|default(__('Under a minute')) }}</dd>
+  </div>
+  <div class="cl-a3" style="--i: 2">
+    <dt>{{ __('Currency') }}</dt>
+    <dd>{{ store.currency }}</dd>
+  </div>
+  <div class="cl-a4" style="--i: 3">
+    <dt>{{ __('Need help?') }}</dt>
+    <dd>
+      {% if config('discord') %}
+        <a href="{{ config('discord') }}" rel="noopener">{{ __('Ask on Discord') }}</a>
+      {% else %}{{ __('Ask a mod') }}{% endif %}
+    </dd>
+  </div>
+</dl>
+
+{# ---- Most popular: real packages, above the fold, before the category list.
+   Which ones appear is a panel setting. ---- #}
+{% if config('popular-packages') %}
+  {% set popularList = config('popular-packages')|lower|replace({' ': ''})|split(',') %}
+  <section class="cl-popular cl-wrap">
+    <h2 class="cl-head">{{ __('Most popular') }}</h2>
+    <div class="cl-popular-grid">
+      {% for category in store.categories %}
+        {% for package in category.packages %}
+          {% if package.name|lower|replace({' ': ''}) in popularList %}
+            {% include "package-card.twig" with { accent: loop.index0 % 4 + 1 } %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+
+<div class="cl-rail cl-a1" data-rail>
+  <button type="button" data-filter="all" aria-pressed="true">{{ __('Everything') }}</button>
+  {% for category in store.categories %}
+    <button type="button" data-filter="{{ category.slug }}" aria-pressed="false">
+      {{ category.name }} <em>{{ category.packages|length }}</em>
+    </button>
+  {% endfor %}
+</div>
+
+{# No-JS fallback: the rail above is buttons, so give crawlers and no-JS visitors real links too. #}
+<noscript>
+  <div class="cl-rail">
+    {% for category in store.categories %}
+      <a href="/category/{{ category.slug }}">{{ category.name }}</a>
+    {% endfor %}
+  </div>
+</noscript>
+
+<div class="cl-main">
+  <div>
+    {% for category in store.categories %}
+      <section class="cl-section cl-wrap" id="c-{{ category.slug }}" data-cat="{{ category.slug }}">
+        <h2 class="cl-head">
+          {{ category.name }}
+          <span>{{ category.packages|length }}</span>
+        </h2>
+
+        {% if category.description %}
+          <div class="cl-lede" style="margin: -24px 0 32px">{{ category.description|raw }}</div>
+        {% endif %}
+
+        {# store.js unhides this only when it can build a table from the descriptions. #}
+        <button type="button" class="cl-btn cl-btn-ghost cl-a3" data-compare-toggle aria-pressed="false" hidden
+                style="margin-bottom: 26px">{{ __('Compare tiers') }}</button>
+
+        <div class="cl-grid{{ category.displayType == 'list' ? ' cl-list' : '' }}">
+          {% for package in category.packages %}
+            {% include "package-card.twig" with { accent: loop.index0 % 4 + 1 } %}
+          {% else %}
+            <p class="cl-empty">{{ __('Nothing in this category yet.') }}</p>
+          {% endfor %}
+        </div>
+
+        <div data-compare></div>
+      </section>
+    {% endfor %}
+  </div>
+
+  {# Sidebar modules are enabled and ordered in the panel under Storefront.
+     Each one is styled by its own module.*.html page. #}
+  <aside class="cl-side">
+    {{ modules|raw }}
+  </aside>
+</div>
+
+{# ---- Trust: delivery, refunds, support. All panel-editable. ---- #}
+<div class="cl-trust">
+  <div class="cl-a1">
+    <h3>{{ __('Instant delivery') }}</h3>
+    <p>{{ config('trust-delivery')|default(__('Perks are applied automatically, usually within a minute. Be online or just log in afterwards.'))|raw }}</p>
+  </div>
+  <div class="cl-a2">
+    <h3>{{ __('Refunds') }}</h3>
+    <p>{{ config('trust-refund')|default(__('All payments are final. Chargebacks result in a permanent ban across the network.'))|raw }}</p>
+  </div>
+  <div class="cl-a3">
+    <h3>{{ __('Need a hand?') }}</h3>
+    <p>
+      {{ config('trust-support')|default(__("Didn't get your purchase? Open a ticket and we'll sort it."))|raw }}
+      {% if config('discord') %}
+        <a href="{{ config('discord') }}" rel="noopener">{{ __('Join the Discord') }}</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+{% endblock %}

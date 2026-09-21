@@ -1,0 +1,796 @@
+/* CaelumSMP store — D4 "Aurora Fest".
+   Ported from caelum-web-fable/app/aurora.module.css. Follow ../caelum-web-fable/DESIGN.md.
+   Everything is prefixed .cl- so nothing here can collide with the Tebex.js checkout modal. */
+
+:root {
+  --bg: #061722;
+  --card: #0b2030;
+  --lime: #c6ff3d;
+  --coral: #ff5a5f;
+  --cyan: #4de3ff;
+  --violet: #a77bff;
+  --text: #f4f7ff;
+  --dim: #a9b8cf;
+  --ink: #04131c;
+  --soft: #dfe6ff;
+  --display: "Rubik Mono One", system-ui, sans-serif;
+  --body: "Space Grotesk", system-ui, sans-serif;
+  --notch: polygon(0 10px, 10px 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  --sky: linear-gradient(125deg, #0b3b4a 0%, #142a78 40%, #5b2bd6 75%, #a12bd6 100%);
+}
+
+/* The four accents always cycle lime -> coral -> cyan -> violet. */
+.cl-a1 { --c: var(--lime); }
+.cl-a2 { --c: var(--coral); }
+.cl-a3 { --c: var(--cyan); }
+.cl-a4 { --c: var(--violet); }
+
+* { box-sizing: border-box; }
+
+/* The UA's [hidden] rule is only `display: none` at author-agent weight, so any
+   `display: grid/flex` below would beat it. store.js hides sections and grids by
+   setting .hidden, so this has to win. */
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.55 var(--body);
+  overflow-x: clip;
+}
+
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; }
+:focus-visible { outline: 3px solid var(--lime); outline-offset: 3px; }
+
+/* ---------- primitives ---------- */
+
+/* Pixel-notched neon card: 3px outline in --c over a --card fill. */
+.cl-neon {
+  position: relative;
+  display: block;
+  padding: 28px 26px;
+  background: var(--c, var(--lime));
+  clip-path: var(--notch);
+  isolation: isolate;
+}
+.cl-neon::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: -1;
+  background: var(--card);
+  clip-path: var(--notch);
+  transition: background 0.2s;
+}
+
+.cl-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  background: var(--c, var(--lime));
+  color: var(--ink);
+  font: 700 12px/1 var(--body);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.cl-btn {
+  display: inline-block;
+  padding: 16px 24px;
+  border: 0;
+  background: var(--lime);
+  color: var(--ink);
+  font: 700 15px/1 var(--body);
+  letter-spacing: 0.5px;
+  text-align: center;
+  cursor: pointer;
+  clip-path: var(--notch);
+  transition: transform 0.12s, background 0.12s;
+}
+.cl-btn:hover { background: #fff; transform: translate(-2px, -2px) rotate(-1deg); }
+.cl-btn:focus-visible { outline-color: var(--ink); outline-offset: -6px; }
+.cl-btn[disabled] { background: #3a4a59; color: var(--dim); cursor: not-allowed; transform: none; }
+
+.cl-btn-ghost {
+  background: transparent;
+  color: var(--text);
+  box-shadow: inset 0 0 0 3px var(--c, var(--cyan));
+}
+.cl-btn-ghost:hover { background: var(--c, var(--cyan)); color: var(--ink); }
+
+.cl-link {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--cyan);
+  border-bottom: 2px solid currentColor;
+}
+.cl-link:hover { color: var(--lime); }
+
+.cl-kicker {
+  display: inline-block;
+  padding: 7px 12px;
+  background: var(--ink);
+  color: var(--lime);
+  font: 700 13px/1 var(--body);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.cl-wrap {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 5vw, 80px);
+}
+
+.cl-section { padding: 96px 0 10px; scroll-margin-top: 90px; }
+
+.cl-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 40px;
+  font: 400 clamp(30px, 5.2vw, 64px) / 1 var(--display);
+  text-transform: uppercase;
+}
+.cl-head span {
+  margin-top: 6px;
+  padding: 5px 8px;
+  background: var(--c, var(--coral));
+  color: var(--ink);
+  font: 700 14px/1 var(--body);
+}
+
+/* ---------- top strip ---------- */
+.cl-strip {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px clamp(16px, 4vw, 48px);
+  background: rgba(6, 23, 34, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.cl-brand { display: flex; align-items: center; gap: 8px; font: 400 20px/1 var(--display); }
+
+.cl-strip nav { display: flex; gap: 22px; font: 700 14px/1 var(--body); }
+.cl-strip nav a:hover { color: var(--lime); }
+
+.cl-strip-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+.cl-ign {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 13px/1 var(--body);
+  color: var(--dim);
+}
+.cl-ign img { width: 24px; height: 24px; image-rendering: pixelated; }
+.cl-ign b { color: var(--text); }
+
+.cl-basket-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border: 0;
+  background: var(--text);
+  color: var(--ink);
+  font: 700 13px/1 var(--body);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: var(--notch);
+}
+.cl-basket-btn:hover { background: var(--lime); }
+.cl-basket-btn i {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--coral);
+  color: var(--ink);
+  font: 700 12px/1 var(--body);
+  font-style: normal;
+}
+
+/* ---------- hero ---------- */
+.cl-hero {
+  position: relative;
+  padding: 44px clamp(16px, 5vw, 80px) 76px;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(198, 255, 61, 0.22), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 20% 100%, rgba(255, 90, 95, 0.2), transparent 70%),
+    var(--sky);
+  overflow: hidden;
+}
+.cl-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(100deg, transparent 0 60px, rgba(77, 227, 255, 0.07) 60px 120px, transparent 120px 200px, rgba(198, 255, 61, 0.06) 200px 240px);
+  animation: cl-aurora 16s linear infinite;
+  pointer-events: none;
+}
+@keyframes cl-aurora { to { background-position: 480px 0; } }
+
+.cl-hero-in { position: relative; z-index: 2; max-width: 1360px; margin: 0 auto; }
+
+.cl-hero h1 {
+  margin: 18px 0 18px;
+  font: 400 clamp(32px, 5.4vw, 68px) / 0.98 var(--display);
+  text-transform: uppercase;
+  text-shadow: 6px 6px 0 rgba(4, 19, 28, 0.55);
+}
+.cl-hero h1 em { font-style: normal; color: var(--lime); }
+.cl-lede { max-width: 48ch; font-size: 19px; color: var(--soft); }
+
+/* Floating cubes, parallaxed by --mx/--my from store.js. */
+.cl-floater {
+  position: absolute;
+  translate: calc(var(--mx, 0) * var(--d) * 1px) calc(var(--my, 0) * var(--d) * 1px);
+  transition: translate 0.3s ease-out;
+  animation: cl-spin 7s ease-in-out infinite alternate;
+  filter: drop-shadow(0 12px 0 rgba(4, 19, 28, 0.3));
+  pointer-events: none;
+}
+@keyframes cl-spin {
+  from { transform: translateY(-10px) rotate(-8deg); }
+  to { transform: translateY(12px) rotate(10deg); }
+}
+
+/* ---------- info board straddling the hero edge ---------- */
+.cl-board {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 1360px;
+  margin: -52px auto 0;
+  padding: 0 clamp(16px, 5vw, 80px);
+}
+.cl-board div {
+  padding: 18px 20px 20px;
+  background: var(--card);
+  border-top: 6px solid var(--c);
+  clip-path: var(--notch);
+  animation: cl-cell 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: calc(var(--i) * 90ms + 200ms);
+}
+@keyframes cl-cell { from { opacity: 0; transform: translateY(24px); } }
+
+.cl-board dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 700 12px/1 var(--body);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.cl-board dt i { width: 9px; height: 9px; background: var(--lime); animation: cl-blink 1.4s steps(2) infinite; }
+@keyframes cl-blink { 50% { opacity: 0.2; } }
+
+.cl-board dd {
+  margin-top: 10px;
+  font: 700 clamp(15px, 1.6vw, 20px) / 1.2 var(--body);
+  color: var(--c);
+  overflow-wrap: anywhere;
+}
+.cl-board button { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-transform: inherit; }
+
+/* ---------- category selector rail ---------- */
+.cl-rail {
+  position: sticky;
+  top: 58px;
+  z-index: 20;
+  display: flex;
+  gap: 10px;
+  margin: 72px 0 0;
+  padding: 14px clamp(16px, 5vw, 80px);
+  background: rgba(6, 23, 34, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.cl-rail::-webkit-scrollbar { display: none; }
+
+.cl-rail a, .cl-rail button {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 18px;
+  border: 0;
+  background: var(--card);
+  color: var(--dim);
+  font: 700 13px/1 var(--body);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  clip-path: var(--notch);
+  transition: background 0.15s, color 0.15s;
+}
+.cl-rail a:hover, .cl-rail button:hover { color: var(--text); }
+.cl-rail [aria-current="true"], .cl-rail [aria-pressed="true"] {
+  background: var(--c, var(--lime));
+  color: var(--ink);
+}
+.cl-rail em {
+  font: 700 11px/1 var(--body);
+  font-style: normal;
+  opacity: 0.6;
+}
+.cl-rail button:focus-visible { outline-offset: -5px; }
+
+/* ---------- package grid ---------- */
+.cl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+.cl-grid.cl-list { grid-template-columns: 1fr; }
+
+.cl-pkg {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.cl-pkg:hover { transform: translateY(-6px) rotate(-0.6deg); }
+.cl-pkg > * { position: relative; }
+
+.cl-pkg-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  /* Reserve the badge row's height even when a package has no badge, so titles
+     line up across a row of cards. 46px = 24px top padding + a 22px badge,
+     because box-sizing is border-box. */
+  height: 46px;
+  padding: 24px 24px 0;
+}
+
+.cl-pkg-fig {
+  display: grid;
+  place-items: center;
+  height: 150px;
+  margin: 0 24px;
+  background:
+    linear-gradient(rgba(4, 19, 28, 0.14) 50%, transparent 50%) 0 0 / 100% 36px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 50%, transparent 50%) 0 0 / 36px 100%,
+    var(--c);
+  clip-path: var(--notch);
+  overflow: hidden;
+}
+.cl-pkg-fig img {
+  max-height: 118%;
+  width: auto;
+  filter: drop-shadow(8px 8px 0 rgba(4, 19, 28, 0.32));
+}
+
+.cl-pkg h3 {
+  padding: 0 24px;
+  font: 400 clamp(19px, 2vw, 25px) / 1.1 var(--display);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.cl-pkg-desc {
+  padding: 0 24px;
+  font-size: 15px;
+  color: var(--dim);
+}
+.cl-pkg-desc ul { display: grid; gap: 7px; }
+.cl-pkg-desc li {
+  padding-left: 20px;
+  background: linear-gradient(var(--c), var(--c)) 0 7px / 10px 10px no-repeat;
+}
+.cl-pkg-desc p + p, .cl-pkg-desc ul + p { margin-top: 0.8em; }
+
+.cl-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;           /* a struck-through original + the new price must not overflow */
+  gap: 4px 10px;
+  padding: 0 24px;
+  margin-top: auto;
+  font: 700 clamp(24px, 2.7vw, 34px) / 1.1 var(--body);
+  letter-spacing: -0.5px;
+  color: var(--c);
+  overflow-wrap: anywhere;
+}
+.cl-price s { font-size: 0.5em; color: var(--dim); }
+
+/* Wraps so the stepper and the button stack instead of squeezing the label onto
+   two lines in a narrow card. */
+.cl-pkg-foot { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 24px 26px; }
+.cl-pkg-foot .cl-btn { flex: 1 1 140px; padding: 15px 16px; }
+
+/* ---------- quantity stepper (crate keys, etc.) ---------- */
+.cl-qty {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  background: var(--card);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.12);
+  clip-path: var(--notch);
+}
+.cl-qty button {
+  width: 40px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 400 18px/1 var(--display);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.cl-qty button:hover { background: var(--lime); color: var(--ink); }
+.cl-qty button:focus-visible { outline-offset: -5px; }
+.cl-qty input {
+  width: 52px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 400 17px/1 var(--display);
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.cl-qty input::-webkit-outer-spin-button,
+.cl-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Bulk shortcuts: "x5  x10  x25" chips under a key package. */
+.cl-bulk { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 24px; }
+.cl-bulk button {
+  padding: 7px 11px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--dim);
+  font: 700 12px/1 var(--body);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.cl-bulk button:hover, .cl-bulk button[aria-pressed="true"] { background: var(--c); color: var(--ink); }
+
+/* ---------- comparison table ---------- */
+.cl-compare-wrap { margin-top: 28px; overflow-x: auto; }
+
+.cl-compare {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+}
+.cl-compare th, .cl-compare td {
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+/* Not sticky: the strip and the category rail are already stuck to the top, and a
+   third sticky layer just overlaps the rows. Feature lists are short anyway. */
+.cl-compare thead th {
+  background: var(--bg);
+  border-bottom: 3px solid var(--text);
+  vertical-align: bottom;
+}
+.cl-compare tbody th {
+  text-align: left;
+  font: 700 14px/1.3 var(--body);
+  color: var(--dim);
+  white-space: nowrap;
+}
+.cl-compare tbody tr:hover td, .cl-compare tbody tr:hover th { background: rgba(255, 255, 255, 0.03); }
+
+.cl-compare-name {
+  display: block;
+  font: 400 clamp(15px, 1.7vw, 21px) / 1.1 var(--display);
+  text-transform: uppercase;
+  color: var(--c);
+}
+.cl-compare-price {
+  display: block;
+  margin-top: 6px;
+  font: 700 13px/1 var(--body);
+  letter-spacing: 1px;
+  color: var(--dim);
+}
+.cl-compare thead .cl-btn { margin-top: 12px; padding: 11px 14px; font-size: 12px; }
+
+.cl-yes, .cl-no { font: 700 17px/1 var(--body); }
+.cl-yes { color: var(--lime); }
+.cl-no { color: #3f5263; }
+
+/* ---------- basket / checkout ---------- */
+.cl-basket { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start; }
+
+.cl-lines { display: grid; gap: 12px; }
+
+.cl-line {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 20px;
+  background: var(--card);
+  border-left: 6px solid var(--c);
+  clip-path: var(--notch);
+}
+.cl-line-fig { display: grid; place-items: center; height: 60px; background: rgba(255, 255, 255, 0.05); }
+.cl-line b { font: 400 17px/1.2 var(--display); text-transform: uppercase; }
+.cl-line small { display: block; margin-top: 4px; font: 700 12px/1 var(--body); letter-spacing: 1px; color: var(--dim); }
+.cl-line-price { font: 400 20px/1 var(--display); color: var(--c); }
+.cl-line-rm {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: rgba(255, 90, 95, 0.15);
+  color: var(--coral);
+  font: 700 16px/1 var(--body);
+  cursor: pointer;
+}
+.cl-line-rm:hover { background: var(--coral); color: var(--ink); }
+
+.cl-summary { position: sticky; top: 90px; }
+.cl-summary dl { display: grid; gap: 12px; margin-bottom: 20px; }
+.cl-summary div { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; color: var(--dim); }
+.cl-summary dd { color: var(--text); }
+.cl-summary .cl-total { padding-top: 14px; border-top: 2px solid rgba(255, 255, 255, 0.12); }
+.cl-summary .cl-total dd { font: 400 30px/1 var(--display); color: var(--lime); }
+.cl-summary .cl-btn { width: 100%; }
+
+.cl-empty { padding: 60px 24px; text-align: center; color: var(--dim); }
+.cl-empty p { margin-bottom: 24px; }
+
+/* ---------- forms ---------- */
+.cl-form { display: grid; gap: 18px; max-width: 520px; }
+.cl-field { display: grid; gap: 8px; }
+.cl-field label { font: 700 13px/1 var(--body); letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+.cl-field input, .cl-field select, .cl-field textarea {
+  padding: 15px 16px;
+  border: 0;
+  background: var(--card);
+  color: var(--text);
+  font: 400 16px/1.3 var(--body);
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.12);
+  clip-path: var(--notch);
+}
+.cl-field input:focus, .cl-field select:focus, .cl-field textarea:focus {
+  outline: 0;
+  box-shadow: inset 0 0 0 3px var(--lime);
+}
+.cl-field small { font-size: 13px; color: var(--dim); }
+
+/* ---------- toast ---------- */
+.cl-toast {
+  position: fixed;
+  right: clamp(16px, 4vw, 40px);
+  bottom: clamp(16px, 4vw, 40px);
+  z-index: 60;
+  max-width: 360px;
+  padding: 18px 22px;
+  background: var(--card);
+  border-left: 6px solid var(--c, var(--lime));
+  clip-path: var(--notch);
+  animation: cl-toast-in 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.cl-toast b { display: block; margin-bottom: 4px; font: 400 15px/1 var(--display); text-transform: uppercase; color: var(--c, var(--lime)); }
+.cl-toast p { font-size: 15px; color: var(--soft); }
+@keyframes cl-toast-in { from { opacity: 0; transform: translateY(20px); } }
+
+/* ---------- footer ---------- */
+.cl-footer {
+  margin-top: 110px;
+  padding: 84px clamp(16px, 5vw, 80px) 40px;
+  background: var(--sky);
+}
+.cl-bye {
+  font: 400 clamp(40px, 9vw, 130px) / 0.95 var(--display);
+  text-transform: uppercase;
+  text-shadow: 6px 6px 0 rgba(4, 19, 28, 0.5);
+}
+.cl-foot-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1360px;
+  margin: 44px auto 22px;
+  padding-top: 24px;
+  border-top: 3px solid var(--text);
+}
+.cl-foot-row ul { display: flex; flex-wrap: wrap; gap: 8px 22px; font-weight: 700; }
+.cl-foot-row a:hover { color: var(--lime); }
+.cl-footer small { display: block; max-width: 1360px; margin: 0 auto; color: #d4dcf5; }
+
+/* ---------- ribbons ----------
+   "Most popular" / "Best value" markers. Which packages get one is a panel
+   setting, so merchandising never needs a code change. */
+.cl-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  padding: 7px 14px;
+  background: var(--c);
+  color: var(--ink);
+  font: 700 11px/1 var(--body);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ---------- most popular row ----------
+   Sits between the info board and the categories, so a package is on screen
+   before any scrolling. */
+.cl-popular { padding: 64px 0 0; }
+
+.cl-popular .cl-head {
+  margin-bottom: 26px;
+  font-size: clamp(22px, 3vw, 34px);
+}
+
+.cl-popular-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+/* ---------- store body: content + social proof sidebar ---------- */
+.cl-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 40px;
+  align-items: start;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 5vw, 80px);
+}
+.cl-main > div { min-width: 0; }
+.cl-main .cl-section { padding-top: 72px; }
+.cl-main .cl-wrap { max-width: none; padding: 0; }
+/* Section heads are sized for a full-width page; in an ~840px column the top of
+   the clamp is far too big and crowds the section below. */
+.cl-main .cl-head { font-size: clamp(26px, 3.4vw, 42px); margin-bottom: 30px; }
+
+.cl-side {
+  position: sticky;
+  top: 132px;
+  display: grid;
+  gap: 16px;
+  padding-top: 64px;
+}
+
+/* Sidebar modules. Tebex renders these through {{ modules|raw }}, each one
+   styled by its own module.*.html page. */
+.cl-module {
+  padding: 20px 22px 22px;
+  background: var(--card);
+  border-top: 5px solid var(--c, var(--lime));
+  clip-path: var(--notch);
+}
+.cl-module h2 {
+  margin-bottom: 14px;
+  font: 700 12px/1 var(--body);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* Recent payments: a wall of player heads reads as "people buy this" faster
+   than any sentence can. */
+.cl-heads { display: flex; flex-wrap: wrap; gap: 6px; }
+.cl-heads img {
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cl-feed { display: grid; gap: 10px; }
+.cl-feed li { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.cl-feed img { width: 26px; height: 26px; image-rendering: pixelated; flex: none; }
+.cl-feed b { color: var(--text); overflow-wrap: anywhere; }
+.cl-feed small { margin-left: auto; flex: none; color: var(--dim); font-size: 12px; }
+
+.cl-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  float: right;
+  font: 700 10px/1 var(--body);
+  letter-spacing: 1.5px;
+  color: var(--lime);
+}
+.cl-live i { width: 7px; height: 7px; background: var(--lime); animation: cl-blink 1.4s steps(2) infinite; }
+
+/* Top donator */
+.cl-donor { display: flex; align-items: center; gap: 12px; }
+.cl-donor img { width: 48px; height: 48px; image-rendering: pixelated; }
+.cl-donor b { display: block; font: 400 17px/1.2 var(--display); text-transform: uppercase; overflow-wrap: anywhere; }
+.cl-donor small { color: var(--lime); font: 700 13px/1 var(--body); }
+
+/* Goal bar */
+.cl-goal-bar {
+  height: 18px;
+  margin: 4px 0 10px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.cl-goal-fill {
+  height: 100%;
+  background: var(--c, var(--lime));
+  background-image: linear-gradient(115deg, rgba(4, 19, 28, 0.18) 25%, transparent 25% 50%, rgba(4, 19, 28, 0.18) 50% 75%, transparent 75%);
+  background-size: 18px 18px;
+  animation: cl-stripe 0.9s linear infinite;
+  transition: width 0.6s ease-out;
+}
+@keyframes cl-stripe { to { background-position: 18px 0; } }
+.cl-goal-nums { display: flex; justify-content: space-between; font: 700 13px/1 var(--body); }
+.cl-goal-nums b { color: var(--lime); }
+.cl-goal-nums span { color: var(--dim); }
+
+/* Server status */
+.cl-status { display: flex; align-items: center; gap: 10px; font: 700 14px/1 var(--body); }
+.cl-status i { width: 10px; height: 10px; background: var(--lime); animation: cl-blink 1.4s steps(2) infinite; }
+.cl-status i[data-off] { background: var(--coral); animation: none; }
+.cl-status b { color: var(--text); }
+.cl-status small { color: var(--dim); font-size: 13px; }
+
+/* ---------- trust block ----------
+   Delivery, refunds and how to get help. A new server has no reputation yet, so
+   this does more work here than it would on an established store. */
+.cl-trust {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 1360px;
+  margin: 96px auto 0;
+  padding: 0 clamp(16px, 5vw, 80px);
+}
+.cl-trust div { padding: 24px 24px 26px; background: var(--card); border-top: 5px solid var(--c); clip-path: var(--notch); }
+.cl-trust h3 { margin-bottom: 8px; font: 400 16px/1.2 var(--display); text-transform: uppercase; color: var(--c); }
+.cl-trust p { font-size: 15px; color: var(--dim); }
+.cl-trust a { color: var(--cyan); font-weight: 700; border-bottom: 2px solid currentColor; }
+.cl-trust a:hover { color: var(--lime); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1100px) {
+  /* The sidebar drops below the packages rather than squeezing them. */
+  .cl-main { grid-template-columns: 1fr; gap: 0; }
+  .cl-side { position: static; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); padding-top: 48px; }
+}
+
+@media (max-width: 1000px) {
+  .cl-board { grid-template-columns: 1fr 1fr; }
+  .cl-basket { grid-template-columns: 1fr; }
+  .cl-summary { position: static; }
+  .cl-strip nav { display: none; }
+}
+
+@media (max-width: 640px) {
+  .cl-section { padding-top: 72px; }
+  .cl-board { gap: 10px; }
+  .cl-board div { padding: 14px 14px 16px; }
+  .cl-line { grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+  .cl-line-fig { display: none; }
+  .cl-floater { opacity: 0.45; }
+  .cl-rail { top: 54px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

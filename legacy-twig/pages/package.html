@@ -1,0 +1,57 @@
+{#
+  package.html — one package in detail.
+  Root object: id, identifier, name, description, price, customPrice,
+  discount{applied,original,percentage}, purchasable, quantity,
+  image{url,uploaded}, category, has_options.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-section cl-wrap">
+  <p style="margin-bottom: 26px">
+    <a class="cl-link" href="/">&larr; {{ __('Back to the store') }}</a>
+  </p>
+
+  {# One card, but wide: the grid is a single column above 900px wide. #}
+  <article class="cl-pkg cl-neon cl-a1"
+           data-pkg="{{ name }}"
+           data-price="{{ price }}"
+           data-price-label="{{ price }} {{ store.currency }}"
+           style="max-width: 860px">
+
+    <div class="cl-pkg-top">
+      {% if discount.applied %}
+        <span class="cl-badge">&minus;{{ discount.percentage }}% {{ __('off') }}</span>
+      {% else %}
+        <span class="cl-badge cl-a3">{{ category }}</span>
+      {% endif %}
+    </div>
+
+    {% if image.uploaded %}
+      <figure class="cl-pkg-fig" style="height: 260px">
+        <img src="{{ image.url }}" alt="" />
+      </figure>
+    {% endif %}
+
+    <h3 style="font-size: clamp(28px, 4.4vw, 52px)">{{ name }}</h3>
+
+    <div class="cl-pkg-desc" style="font-size: 17px">{{ description|raw }}</div>
+
+    <p class="cl-price" style="font-size: clamp(34px, 4.6vw, 52px)">
+      {% if discount.applied %}<s>{{ discount.original }}</s>{% endif %}
+      <span><span data-total>{{ price }}</span> {{ store.currency }}</span>
+    </p>
+
+    {% if customPrice %}
+      {# Pay-what-you-want package: the amount is entered on the options step. #}
+      <p class="cl-pkg-desc"><small>{{ __('You choose the amount at the next step.') }}</small></p>
+    {% endif %}
+
+    {% include "add-to-basket.twig" with { package: _context } %}
+  </article>
+</section>
+
+{% endblock %}

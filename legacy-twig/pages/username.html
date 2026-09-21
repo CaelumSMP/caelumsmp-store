@@ -1,0 +1,40 @@
+{#
+  username.html — who is this purchase for.
+  Root object: external (bool), provider (string), url (string).
+  Non-external logins POST `ign` back to this same page, so the form has no action.
+#}
+{% extends "layout.html" %}
+
+{% block title %}{{ __('Log in') }}{% endblock %}
+
+{% block content %}
+
+<section class="cl-section cl-wrap">
+  <h2 class="cl-head">{{ __('Who are we delivering to?') }}</h2>
+
+  <div class="cl-neon cl-a1" style="max-width: 560px">
+    {% if external %}
+
+      <p class="cl-lede" style="margin-bottom: 24px">
+        {{ __('Sign in with') }} {{ provider }} {{ __('so we know where to send your perks.') }}
+      </p>
+      <a class="cl-btn" href="{{ url }}">{{ __('Continue with') }} {{ provider }}</a>
+
+    {% else %}
+
+      <form class="cl-form" method="post">
+        <div class="cl-field">
+          <label for="cl-ign">{{ __('Minecraft username') }}</label>
+          <input id="cl-ign" type="text" name="ign" autocomplete="username"
+                 autocapitalize="off" autocorrect="off" spellcheck="false" required
+                 placeholder="{{ __('e.g. Notch') }}" />
+          <small>{{ __('Exactly as it appears in-game — perks are delivered to this account.') }}</small>
+        </div>
+        <button class="cl-btn" type="submit">{{ __('Continue') }}</button>
+      </form>
+
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

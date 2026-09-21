@@ -1,0 +1,22 @@
+{#
+  module.goal.html — donation goal.
+  module.header, module.bar.style, module.bar.animated,
+  module.displayAmount, module.total, module.target, module.percentage.
+#}
+<section class="cl-module cl-a3">
+  <h2>{{ module.header }}</h2>
+
+  <div class="cl-goal-bar">
+    {# Clamped: Tebex keeps counting past 100% once a goal is beaten. #}
+    <div class="cl-goal-fill"
+         style="width: {{ module.percentage > 100 ? 100 : module.percentage }}%;
+                {% if not module.bar.animated %}animation: none;{% endif %}"></div>
+  </div>
+
+  <p class="cl-goal-nums">
+    <b>{{ module.percentage }}%</b>
+    {% if module.displayAmount %}
+      <span>{{ module.total }} / {{ module.target }}</span>
+    {% endif %}
+  </p>
+</section>

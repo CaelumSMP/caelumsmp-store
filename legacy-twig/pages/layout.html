@@ -1,0 +1,93 @@
+{#
+  layout.html — the shell every page extends. Not publicly routable.
+  Design source of truth: ../caelum-web-fable/DESIGN.md
+#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}{{ page.title }}{% endblock %} &mdash; {{ store.name }}</title>
+
+  {% if store.favicon %}<link rel="icon" href="{{ store.favicon }}" />{% endif %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Space+Grotesk:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="{{ asset('theme.css') }}" />
+
+  {# store.css is whatever the panel's CSS editor holds — last, so it can always override. #}
+  {% if store.css %}<style>{{ store.css|raw }}</style>{% endif %}
+
+  <script defer src="https://js.tebex.io/v/1.js"></script>
+  <script defer src="{{ asset('store.js') }}"></script>
+</head>
+
+<body>
+  <header class="cl-strip">
+    <a class="cl-brand" href="/">
+      {% if store.logo %}
+        <img src="{{ store.logo }}" alt="{{ store.name }}" height="30" />
+      {% else %}
+        {% include "cube.twig" with { size: 30, top: '#c6ff3d', left: '#8fc41f', right: '#6a9612' } %}
+        CAELUM
+      {% endif %}
+    </a>
+
+    <nav aria-label="{{ __('Categories') }}">
+      {% for category in store.categories %}
+        <a href="/category/{{ category.slug }}">{{ category.name }}</a>
+      {% endfor %}
+    </nav>
+
+    <div class="cl-strip-right">
+      {% if basket.ign %}
+        <span class="cl-ign">
+          <img src="https://mc-heads.net/avatar/{{ basket.ign }}/24" alt="" />
+          <b>{{ basket.ign }}</b>
+        </span>
+      {% elseif not store.noLogin %}
+        <a class="cl-ign" href="/login">{{ __('Log in') }}</a>
+      {% endif %}
+
+      <a class="cl-basket-btn" href="/checkout">
+        {{ __('Basket') }}
+        <i>{{ basket.packages|length }}</i>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="cl-footer">
+    <p class="cl-bye">{{ __('See you') }}<br />{{ __('in-game.') }}</p>
+
+    <div class="cl-foot-row">
+      <ul>
+        {% if config('discord') %}<li><a href="{{ config('discord') }}" rel="noopener">Discord</a></li>{% endif %}
+        {% if config('site-url') %}<li><a href="{{ config('site-url') }}">{{ __('Main site') }}</a></li>{% endif %}
+      </ul>
+      <ul>
+        {% for category in store.categories %}
+          <li><a href="/category/{{ category.slug }}">{{ category.name }}</a></li>
+        {% endfor %}
+        <li><a href="/checkout">{{ __('Basket') }}</a></li>
+      </ul>
+    </div>
+
+    <small>
+      &copy; 2026 {{ store.name }}. {{ __('Not affiliated with Mojang or Microsoft.') }}
+      {{ __('All purchases are final; see the terms shown at checkout.') }}
+    </small>
+  </footer>
+
+  {% if page.message.display %}
+    <div class="cl-toast {{ page.message.type == 'error' ? 'cl-a2' : 'cl-a1' }}" role="status">
+      <b>{{ page.message.type == 'error' ? __('Something went wrong') : __('Done') }}</b>
+      <p>{{ page.message.text }}</p>
+    </div>
+  {% endif %}
+</body>
+</html>

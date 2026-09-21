@@ -1,0 +1,15 @@
+{#
+  cube.twig — the isometric brand block, ported from
+  caelum-web-fable/app/_ui/art.tsx (Cube). Light comes from the top-left.
+
+  {% include "cube.twig" with { size: 30, top: '#c6ff3d', left: '#8fc41f', right: '#6a9612' } %}
+  Pass `d` as well to make it a parallax floater inside the hero.
+#}
+<svg viewBox="0 0 100 100"
+     width="{{ size|default(80) }}" height="{{ size|default(80) }}"
+     {% if d is defined %}class="cl-floater" style="--d: {{ d }}; {{ at|default('') }}"{% endif %}
+     aria-hidden="true">
+  <polygon points="50,4 96,27 50,50 4,27" fill="{{ top|default('#c6ff3d') }}" />
+  <polygon points="4,27 50,50 50,97 4,74" fill="{{ left|default('#8fc41f') }}" />
+  <polygon points="50,50 96,27 96,74 50,97" fill="{{ right|default('#6a9612') }}" />
+</svg>

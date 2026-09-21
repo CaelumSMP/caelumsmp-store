@@ -1,0 +1,35 @@
+{#
+  module.payments.html — recent purchases.
+  module.header, module.payments[{ign, name, time, price, currency}],
+  module.displayPackage, module.displayPrice.
+
+  Heads come from mc-heads.net rather than a Tebex variable, because the payments
+  module gives a username but no skin URL.
+#}
+<section class="cl-module cl-a1">
+  <h2>{{ module.header }}<span class="cl-live"><i></i>{{ __('Live') }}</span></h2>
+
+  {% if module.displayPackage or module.displayPrice %}
+    <ul class="cl-feed">
+      {% for payment in module.payments %}
+        <li>
+          <img src="https://mc-heads.net/avatar/{{ payment.ign }}/26" alt="" loading="lazy" />
+          <span>
+            <b>{{ payment.ign }}</b>
+            {% if module.displayPackage %}<br />{{ payment.name }}{% endif %}
+            {% if module.displayPrice %} &middot; {{ payment.price }} {{ payment.currency }}{% endif %}
+          </span>
+          <small>{{ payment.time }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {# No package or price to show, so the heads alone say it: people buy here. #}
+    <div class="cl-heads">
+      {% for payment in module.payments %}
+        <img src="https://mc-heads.net/avatar/{{ payment.ign }}/34" alt="{{ payment.ign }}"
+             title="{{ payment.ign }} &middot; {{ payment.time }}" loading="lazy" />
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
