@@ -19,6 +19,8 @@ type Ctx = {
   /** Who the perks get delivered to. Null until they tell us. */
   username: string | null;
   setUsername: (name: string) => void;
+  /** Forget who it's for and drop the basket with it. */
+  clearUsername: () => void;
   add: (packageId: number, quantity: number) => Promise<void>;
   remove: (packageId: number) => Promise<void>;
   refresh: () => Promise<void>;
@@ -112,6 +114,16 @@ export default function BasketProvider({ children }: { children: React.ReactNode
     }
   }, [basket]);
 
+  const clearUsername = useCallback(() => {
+    try {
+      localStorage.removeItem(NAME_KEY);
+    } catch {}
+    setName(null);
+    // The basket is tied to the username at Tebex, so it goes too.
+    writeIdent(null);
+    setBasket(null);
+  }, []);
+
   const ensure = useCallback(async () => {
     const existing = basket?.ident ?? readIdent();
     if (existing) return existing;
@@ -158,6 +170,6 @@ export default function BasketProvider({ children }: { children: React.ReactNode
   const count = basket?.packages.reduce((n, p) => n + (p.in_basket?.quantity || 0), 0) ?? 0;
 
   return (
-    <BasketContext.Provider value={{ basket, count, busy, username, setUsername, add, remove, refresh }}>{children}</BasketContext.Provider>
+    <BasketContext.Provider value={{ basket, count, busy, username, setUsername, clearUsername, add, remove, refresh }}>{children}</BasketContext.Provider>
   );
 }

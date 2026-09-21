@@ -1108,3 +1108,42 @@ img { max-width: 100%; }
 }
 .cl-basket-who img { width: 30px; height: 30px; image-rendering: pixelated; }
 .cl-basket-who b { color: var(--lime); }
+
+/* ---------- who it's for, in the header ----------
+   Mirrors the .cl-pill shape so it sits in the row without inventing a new
+   component, and stays visible on every page once set. */
+.cl-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 6px;
+  background: rgba(4, 19, 28, 0.8);
+  border: 2px solid rgba(198, 255, 61, 0.35);
+  font: 700 13px/1 var(--body);
+  white-space: nowrap;
+}
+.cl-who img { width: 22px; height: 22px; image-rendering: pixelated; flex: none; }
+.cl-who b { color: var(--lime); max-width: 12ch; overflow: hidden; text-overflow: ellipsis; }
+.cl-who button {
+  padding: 7px 9px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  font: 700 11px/1 var(--body);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.cl-who button:hover { background: var(--lime); color: var(--ink); }
+
+/* Typo warning under the username field. */
+.cl-identity-note { margin-top: 12px; font-size: 14px; }
+.cl-identity-note b { color: inherit; }
+.cl-note-premium { color: var(--lime); }
+.cl-note-not-premium { color: var(--dim); }
+
+@media (max-width: 1100px) {
+  /* The header is already tight here; the panel on the store front still
+     shows the username and can change it. */
+  .cl-who { display: none; }
+}

@@ -6,6 +6,7 @@ import { Cube, Icon } from "@/app/_ui/art";
 import Menu from "@/app/_ui/Menu";
 import { useBasket } from "@/app/_ui/BasketProvider";
 import { getStatus, fmt, type Status } from "@/app/_lib/status";
+import { skinUrl } from "@/app/_lib/tebex";
 import { NAV, SITE_URL, SERVER_IP, DISCORD } from "@/app/_lib/config";
 
 // A port of the main site's top strip, so crossing from caelumsmp.com to the
@@ -15,7 +16,7 @@ import { NAV, SITE_URL, SERVER_IP, DISCORD } from "@/app/_lib/config";
 // The only differences are the two things the store genuinely owns: the coral
 // chip points home instead of here, and the basket sits beside it.
 export default function Strip() {
-  const { count } = useBasket();
+  const { count, username, clearUsername } = useBasket();
   const [status, setStatus] = useState<Status | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -72,6 +73,16 @@ export default function Strip() {
           ) : null}
         </span>
       </div>
+
+      {username ? (
+        <span className="cl-who">
+          <img src={skinUrl(username, 48)} alt="" />
+          <b>{username}</b>
+          <button type="button" onClick={clearUsername} title={`Stop delivering to ${username}`}>
+            Change
+          </button>
+        </span>
+      ) : null}
 
       {/* On the main site this chip brings you here; here it takes you back. */}
       <a className="cl-store-chip" href={SITE_URL}>
